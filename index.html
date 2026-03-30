@@ -1,630 +1,1138 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <!-- ========== Performance Settings ========== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة المؤسسات</title>
-    
-    <!-- Preconnect -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://your-project.supabase.co">
-    <link rel="dns-prefetch" href="https://your-project.supabase.co">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="src/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <style>
+/* ===== CSS Variables ===== */
+:root {
+    --primary: #667eea;
+    --primary-dark: #5a67d8;
+    --secondary: #764ba2;
+    --success: #48bb78;
+    --warning: #ed8936;
+    --danger: #f56565;
+    --dark: #1a202c;
+    --gray: #718096;
+    --light: #f7fafc;
+    --gold: #f6e05e;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; -webkit-font-smoothing:antialiased; }
+body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%); min-height:100vh; line-height:1.6; }
+.hidden { display:none !important; }
 
-    <style>.hidden { display: none !important; }</style>
+/* Login */
+.login-screen { position:fixed; inset:0; display:grid; place-items:center; background:var(--dark); z-index:9999; padding:1rem; }
+.login-box { background:white; padding:2.5rem; border-radius:1.5rem; width:100%; max-width:420px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); animation:slideUp .5s ease; }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.login-logo { text-align:center; margin-bottom:2rem; }
+.login-logo h1 { font-size:1.8rem; color:var(--dark); margin-bottom:.5rem; }
+.login-logo p { color:var(--gray); font-size:.9rem; }
+.form-group { margin-bottom:1.25rem; }
+.form-group label { display:block; margin-bottom:.5rem; font-weight:600; color:var(--dark); font-size:.9rem; }
+.form-control { width:100%; padding:.875rem 1rem; border:2px solid #e2e8f0; border-radius:.75rem; font-size:1rem; transition:all .2s; font-family:inherit; }
+.form-control:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(102,126,234,.1); }
+select.form-control { cursor:pointer; }
+textarea.form-control { resize:vertical; min-height:80px; }
+.login-error { color:var(--danger); font-size:.85rem; margin-top:.5rem; text-align:center; }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.875rem 1.5rem; border:none; border-radius:.75rem; font-weight:600; cursor:pointer; transition:all .2s; width:100%; font-family:inherit; font-size:.95rem; }
+.btn-primary { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.btn-primary:disabled { opacity:.6; transform:none; cursor:not-allowed; }
+.btn-secondary { background:#e2e8f0; color:var(--dark); }
+.btn-secondary:hover { background:#cbd5e0; }
+.btn-success { background:linear-gradient(135deg,var(--success),#38a169); color:white; }
+.btn-danger { background:linear-gradient(135deg,var(--danger),#c53030); color:white; }
+.btn-sm { padding:.625rem 1rem; font-size:.875rem; width:auto; }
+
+/* App Container */
+.app-container { display:none; max-width:1400px; margin:0 auto; padding:1rem; animation:fadeIn .5s ease; }
+.app-container.active { display:block; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* Header */
+.app-header { background:white; border-radius:1rem; padding:1rem 1.5rem; margin-bottom:1.5rem; box-shadow:var(--shadow); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+.user-info { display:flex; align-items:center; gap:.75rem; }
+.user-avatar { width:2.75rem; height:2.75rem; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--secondary)); display:grid; place-items:center; color:white; font-weight:700; font-size:1.1rem; }
+.user-details h3 { font-size:1rem; color:var(--dark); }
+.user-details p { font-size:.8rem; color:var(--gray); }
+
+/* CEO Button */
+.ceo-btn { position:relative; background:linear-gradient(135deg,var(--gold),#d69e2e); color:var(--dark); border:none; padding:.75rem 1.25rem; border-radius:.75rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:.5rem; box-shadow:0 4px 14px rgba(246,224,94,.4); transition:all .2s; font-family:inherit; }
+.ceo-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(246,224,94,.5); }
+.ceo-badge { position:absolute; top:-8px; right:-8px; background:var(--danger); color:white; width:1.5rem; height:1.5rem; border-radius:50%; display:grid; place-items:center; font-size:.75rem; font-weight:700; }
+
+/* CEO Dropdown */
+.ceo-dropdown { position:absolute; top:calc(100% + .5rem); right:0; width:22rem; max-height:28rem; overflow-y:auto; background:white; border-radius:1rem; box-shadow:var(--shadow-lg); display:none; z-index:1000; }
+.ceo-dropdown.active { display:block; animation:slideDown .3s ease; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+.dropdown-header { padding:1rem; background:linear-gradient(135deg,var(--gold),#d69e2e); border-radius:1rem 1rem 0 0; font-weight:700; }
+.request-item { padding:1rem; border-bottom:1px solid #e2e8f0; cursor:pointer; transition:background .2s; }
+.request-item:hover { background:var(--light); }
+.request-item.unread { border-right:3px solid var(--primary); }
+.request-title { font-weight:600; color:var(--dark); margin-bottom:.25rem; }
+.request-meta { font-size:.8rem; color:var(--gray); display:flex; gap:1rem; flex-wrap:wrap; }
+.status-badge { display:inline-block; padding:.25rem .625rem; border-radius:9999px; font-size:.75rem; font-weight:600; }
+.status-pending { background:#fef3c7; color:#92400e; }
+.status-approved { background:#d1fae5; color:#065f46; }
+.status-rejected { background:#fee2e2; color:#991b1b; }
+.status-forwarded { background:#e0e7ff; color:#3730a3; }
+.status-urgent { background:#fee2e2; color:#991b1b; }
+
+/* Main Grid */
+.main-grid { display:grid; grid-template-columns:240px 1fr; gap:1.5rem; }
+
+/* Sidebar */
+.sidebar { background:white; border-radius:1rem; padding:1.25rem; box-shadow:var(--shadow); height:fit-content; }
+.nav-list { list-style:none; }
+.nav-item { margin-bottom:.5rem; }
+.nav-link { display:flex; align-items:center; gap:.75rem; padding:.875rem 1rem; border-radius:.75rem; color:var(--gray); text-decoration:none; font-weight:500; transition:all .2s; cursor:pointer; }
+.nav-link:hover, .nav-link.active { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; }
+
+/* Content */
+.content-area { background:white; border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow); min-height:500px; }
+.page-title { font-size:1.5rem; color:var(--dark); margin-bottom:1.5rem; font-weight:700; }
+
+/* Stats */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+.stat-card { padding:1.25rem; border-radius:.75rem; color:white; }
+.stat-card.blue { background:linear-gradient(135deg,var(--primary),var(--secondary)); }
+.stat-card.green { background:linear-gradient(135deg,var(--success),#38a169); }
+.stat-card.orange { background:linear-gradient(135deg,var(--warning),#dd6b20); }
+.stat-card.red { background:linear-gradient(135deg,var(--danger),#c53030); }
+.stat-value { font-size:1.75rem; font-weight:700; margin-bottom:.25rem; }
+.stat-label { font-size:.875rem; opacity:.9; }
+
+/* Recent Activity */
+.activity-list { list-style:none; }
+.activity-item { padding:.75rem 1rem; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; }
+.activity-item:last-child { border-bottom:none; }
+
+/* Branches */
+.branches-container { display:flex; gap:.75rem; overflow-x:auto; padding:.75rem; background:linear-gradient(135deg,var(--primary),var(--secondary)); border-radius:1rem; min-height:450px; }
+.branch-panel { flex:0 0 3.5rem; background:rgba(255,255,255,.15); backdrop-filter:blur(10px); border-radius:.75rem; padding:1rem .5rem; cursor:pointer; transition:all .4s cubic-bezier(.4,0,.2,1); overflow:hidden; }
+.branch-panel.active { flex:1 1 0; background:rgba(255,255,255,.95); }
+.branch-title { writing-mode:vertical-rl; text-orientation:mixed; color:white; font-weight:700; font-size:.85rem; text-align:center; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; transition:all .3s; }
+.branch-panel.active .branch-title { writing-mode:horizontal-tb; color:var(--dark); font-size:1.1rem; margin-bottom:1rem; }
+.branch-content { display:none; height:calc(100% - 3rem); flex-direction:column; }
+.branch-panel.active .branch-content { display:flex; }
+
+/* Employee Cards */
+.emp-list { flex:1; overflow-y:auto; padding-right:.5rem; }
+.emp-list::-webkit-scrollbar { width:6px; }
+.emp-list::-webkit-scrollbar-thumb { background:var(--gray); border-radius:3px; }
+.emp-card { background:white; border-radius:.75rem; padding:1rem; margin-bottom:.75rem; box-shadow:0 2px 4px rgba(0,0,0,.1); display:flex; justify-content:space-between; align-items:center; transition:all .2s; }
+.emp-card:hover { transform:translateX(-4px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+.emp-info { display:flex; align-items:center; gap:.75rem; }
+.emp-avatar { width:2.5rem; height:2.5rem; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--secondary)); display:grid; place-items:center; color:white; font-weight:700; font-size:.9rem; }
+.emp-name { font-weight:600; color:var(--dark); font-size:.95rem; }
+.emp-role { font-size:.8rem; color:var(--gray); }
+.emp-actions { display:flex; gap:.5rem; }
+.action-btn { width:2rem; height:2rem; border:none; border-radius:.5rem; cursor:pointer; display:grid; place-items:center; font-size:.9rem; transition:all .2s; }
+.action-btn.info { background:var(--gold); }
+.action-btn.edit { background:var(--primary); color:white; }
+.action-btn.delete { background:var(--danger); color:white; }
+.action-btn:hover { transform:scale(1.1); }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); display:none; place-items:center; z-index:5000; padding:1rem; }
+.modal-overlay.active { display:grid; }
+.modal { background:white; border-radius:1rem; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; animation:modalSlide .3s ease; }
+@keyframes modalSlide { from{opacity:0;transform:translateY(50px)} to{opacity:1;transform:translateY(0)} }
+.modal-header { padding:1.25rem; background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border-radius:1rem 1rem 0 0; }
+.modal-header h3 { font-size:1.1rem; }
+.modal-body { padding:1.25rem; }
+.modal-footer { padding:1rem 1.25rem; border-top:1px solid #e2e8f0; display:flex; gap:.75rem; justify-content:flex-end; }
+
+/* Forward Options */
+.forward-options { display:flex; flex-direction:column; gap:.75rem; max-height:300px; overflow-y:auto; }
+.forward-option { display:flex; align-items:center; gap:.75rem; padding:1rem; background:var(--light); border-radius:.75rem; cursor:pointer; transition:all .2s; border:2px solid transparent; }
+.forward-option:hover, .forward-option.selected { border-color:var(--primary); background:#e3f2fd; }
+.forward-option input[type="radio"] { width:1.25rem; height:1.25rem; accent-color:var(--primary); }
+
+/* Reports */
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+.chart-box { background:var(--light); border-radius:.75rem; padding:1rem; }
+.chart-box h4 { margin-bottom:.75rem; color:var(--dark); font-size:.95rem; }
+.chart-box canvas { width:100% !important; max-height:280px; }
+
+/* Org Chart */
+.org-tree { display:flex; flex-direction:column; align-items:center; gap:0; padding:2rem 1rem; overflow-x:auto; }
+.org-node { background:white; border:2px solid var(--primary); border-radius:.75rem; padding:.75rem 1.5rem; text-align:center; min-width:140px; box-shadow:var(--shadow); position:relative; }
+.org-node.ceo-node { background:linear-gradient(135deg,var(--gold),#d69e2e); border-color:var(--gold); font-weight:700; }
+.org-node.admin-node { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border-color:var(--primary); }
+.org-node .node-title { font-weight:600; font-size:.95rem; }
+.org-node .node-sub { font-size:.8rem; opacity:.7; }
+.org-connector { width:2px; height:30px; background:var(--primary); }
+.org-h-line { height:2px; background:var(--primary); }
+.org-branches-row { display:flex; justify-content:center; gap:0; position:relative; }
+.org-branch-col { display:flex; flex-direction:column; align-items:center; min-width:100px; }
+.org-branch-col .org-node { cursor:pointer; transition:all .2s; font-size:.85rem; padding:.5rem .75rem; min-width:100px; }
+.org-branch-col .org-node:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.org-branch-col .node-count { font-size:.75rem; color:var(--gray); margin-top:.25rem; }
+
+/* Notification */
+.notification { position:fixed; top:1rem; left:50%; transform:translateX(-50%) translateY(-100px); background:white; padding:1rem 1.5rem; border-radius:.75rem; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:.75rem; z-index:10000; transition:all .3s; }
+.notification.show { transform:translateX(-50%) translateY(0); }
+.notification.success { border-right:4px solid var(--success); }
+.notification.error { border-right:4px solid var(--danger); }
+.notification.info { border-right:4px solid var(--primary); }
+
+/* Loading */
+.loading-overlay { display:flex; justify-content:center; align-items:center; padding:3rem; }
+.spinner { width:2.5rem; height:2.5rem; border:3px solid #e2e8f0; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* Data Table */
+.data-table { width:100%; border-collapse:collapse; }
+.data-table thead tr { background:var(--dark); color:white; }
+.data-table th, .data-table td { padding:.875rem; text-align:right; }
+.data-table tbody tr { border-bottom:1px solid #e2e8f0; transition:background .2s; }
+.data-table tbody tr:hover { background:var(--light); }
+
+/* Mobile Nav */
+.mobile-nav-btn { display:none; background:none; border:none; font-size:1.5rem; cursor:pointer; padding:.5rem; }
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:2000; }
+.sidebar-overlay.active { display:block; }
+
+/* Responsive */
+@media (max-width:1024px) {
+    .main-grid { grid-template-columns:1fr; }
+}
+@media (max-width:768px) {
+    .login-box { padding:1.5rem; }
+    .main-grid { grid-template-columns:1fr; }
+    .sidebar { display:none; position:fixed; top:0; right:0; bottom:0; width:260px; z-index:3000; border-radius:0; }
+    .sidebar.mobile-open { display:block; }
+    .mobile-nav-btn { display:block; }
+    .branches-container { flex-direction:column; min-height:auto; }
+    .branch-panel { flex:none !important; width:100%; }
+    .branch-panel.active { min-height:300px; }
+    .branch-title { writing-mode:horizontal-tb !important; flex-direction:row !important; justify-content:space-between; }
+    .ceo-dropdown { width:90vw; right:-50%; }
+    .charts-grid { grid-template-columns:1fr; }
+    .org-tree { overflow-x:auto; }
+    .org-branches-row { flex-wrap:wrap; }
+}
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
 </head>
 <body x-data="erpApp()" x-init="init()" @click="closeDropdowns($event)">
 
+    <!-- ========== SETUP SCREEN ========== -->
+    <div class="login-screen" x-show="needsSetup" style="display:none;">
+        <div class="login-box" style="max-width:600px;">
+            <div class="login-logo">
+                <h1>&#9881; إعداد النظام</h1>
+                <p>أدخل بيانات Supabase لتفعيل النظام</p>
+            </div>
+            <div class="form-group">
+                <label>Supabase Project URL</label>
+                <input type="url" class="form-control" x-model="setupForm.url" placeholder="https://xxxxx.supabase.co" dir="ltr">
+            </div>
+            <div class="form-group">
+                <label>Supabase Anon Key</label>
+                <input type="text" class="form-control" x-model="setupForm.key" placeholder="eyJhbGciOi..." dir="ltr" style="font-size:.85rem;">
+            </div>
+            <button class="btn btn-primary" @click="saveSetup()">&#10004; حفظ وتفعيل</button>
+            <p style="margin-top:1rem;font-size:.8rem;color:var(--gray);text-align:center;">
+                &#128274; المفاتيح تُحفظ في متصفحك فقط ولا تُرسل لأي طرف ثالث
+            </p>
+        </div>
+    </div>
+
     <!-- ========== LOGIN SCREEN ========== -->
-    <div class="login-screen" :class="{ 'hidden': auth }">
+    <div class="login-screen" x-show="!needsSetup && !auth && !loadingSession" style="display:none;">
         <div class="login-box">
             <div class="login-logo">
-                <h1>🏢 نظام إدارة المؤسسات</h1>
+                <h1>&#127970; نظام إدارة المؤسسات</h1>
                 <p>Enterprise Resource Planning System v2.0</p>
             </div>
-
             <form @submit.prevent="handleLogin()">
                 <div class="form-group">
-                    <label for="username">👤 اسم المستخدم</label>
-                    <input 
-                        type="text" 
-                        id="username"
-                        class="form-control" 
-                        x-model="loginForm.username"
-                        placeholder="مثال: abdullah.saleh"
-                        required
-                        autocomplete="username"
-                    >
+                    <label>&#128231; البريد الإلكتروني</label>
+                    <input type="email" class="form-control" x-model="loginForm.email" placeholder="user@company.com" required dir="ltr">
                 </div>
-
                 <div class="form-group">
-                    <label for="password">🔒 كلمة المرور</label>
-                    <input 
-                        type="password" 
-                        id="password"
-                        class="form-control" 
-                        x-model="loginForm.password"
-                        placeholder="••••••••"
-                        required
-                        autocomplete="current-password"
-                    >
+                    <label>&#128274; كلمة المرور</label>
+                    <input type="password" class="form-control" x-model="loginForm.password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
                 </div>
-
-                <div class="form-group">
-                    <label for="dept">🏢 القسم / الفرع</label>
-                    <select id="dept" class="form-control" x-model="loginForm.department" required>
-                        <option value="">-- اختر --</option>
-                        <option value="ceo">👑 المدير العام</option>
-                        <option value="admin">⚙️ الإدارة المركزية</option>
-                        <option value="warehouse">📦 المستودع الرئيسي</option>
-                        <template x-for="branch in branches" :key="branch.id">
-                            <option :value="branch.id" x-text="'🌿 ' + branch.name"></option>
-                        </template>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary" :disabled="loginLoading">
-                    <span x-show="!loginLoading">🔐 تسجيل الدخول</span>
-                    <span x-show="loginLoading">⏳ جاري الدخول...</span>
+                <div class="login-error" x-show="loginError" x-text="loginError"></div>
+                <button type="submit" class="btn btn-primary" :disabled="loginLoading" style="margin-top:.5rem;">
+                    <span x-show="!loginLoading">&#128272; تسجيل الدخول</span>
+                    <span x-show="loginLoading">&#9203; جاري الدخول...</span>
                 </button>
             </form>
-
-            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.8rem; color: var(--gray);">
-                <p>🔒 نظام آمن ومحمي | SSL مشفر</p>
+            <div style="margin-top:1.5rem;text-align:center;font-size:.8rem;color:var(--gray);">
+                <p>&#128274; نظام آمن ومحمي | SSL مشفر</p>
             </div>
         </div>
     </div>
 
+    <!-- ========== LOADING SESSION ========== -->
+    <div class="login-screen" x-show="loadingSession" style="display:none;">
+        <div class="loading-overlay"><div class="spinner"></div></div>
+    </div>
+
     <!-- ========== MAIN APP ========== -->
-    <div class="app-container" :class="{ 'active': auth }">
-        
+    <div class="app-container" :class="{'active':auth}">
+
         <!-- Header -->
         <header class="app-header">
-            <div class="user-info">
-                <div class="user-avatar" x-text="user.initials"></div>
-                <div class="user-details">
-                    <h3 x-text="user.name"></h3>
-                    <p x-text="user.role + ' | ' + user.department"></p>
+            <div style="display:flex;align-items:center;gap:.75rem;">
+                <button class="mobile-nav-btn" @click="mobileNav=!mobileNav">&#9776;</button>
+                <div class="user-info">
+                    <div class="user-avatar" x-text="user.initials"></div>
+                    <div class="user-details">
+                        <h3 x-text="user.name"></h3>
+                        <p x-text="user.roleName + ' | ' + user.branchName"></p>
+                    </div>
                 </div>
             </div>
-
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <!-- CEO Button -->
-                <div style="position: relative;" x-show="user.isCEO" @click.stop="toggleCEO()">
+            <div style="display:flex;align-items:center;gap:.75rem;">
+                <div style="position:relative;" x-show="user.isCEO" @click.stop="ceoOpen=!ceoOpen">
                     <button class="ceo-btn">
-                        <span>👑</span>
-                        <span>لوحة التحكم</span>
-                        <span class="ceo-badge" x-show="unreadCEOCount > 0" x-text="unreadCEOCount"></span>
+                        <span>&#128081;</span><span>لوحة الطلبات</span>
+                        <span class="ceo-badge" x-show="unreadCount>0" x-text="unreadCount"></span>
                     </button>
-
-                    <!-- CEO Dropdown -->
-                    <div class="ceo-dropdown" :class="{ 'active': ceoOpen }" @click.stop>
+                    <div class="ceo-dropdown" :class="{'active':ceoOpen}" @click.stop>
                         <div class="dropdown-header">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>📋 جميع الطلبات</span>
-                                <button @click="ceoOpen = false" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">✕</button>
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>&#128203; جميع الطلبات</span>
+                                <button @click="ceoOpen=false" style="background:none;border:none;cursor:pointer;font-size:1.2rem;">&#10005;</button>
                             </div>
                         </div>
-
-                        <!-- Filters -->
-                        <div style="padding: 0.75rem; background: var(--light); display: flex; gap: 0.5rem;">
-                            <button 
-                                @click="filterCEO('all')"
-                                class="btn btn-sm"
-                                :class="ceoFilter === 'all' ? 'btn-primary' : 'btn-secondary'"
-                                style="flex: 1;"
-                            >الكل</button>
-                            <button 
-                                @click="filterCEO('pending')"
-                                class="btn btn-sm"
-                                :class="ceoFilter === 'pending' ? 'btn-primary' : 'btn-secondary'"
-                                style="flex: 1;"
-                            >معلّقة</button>
-                            <button 
-                                @click="filterCEO('urgent')"
-                                class="btn btn-sm"
-                                :class="ceoFilter === 'urgent' ? 'btn-primary' : 'btn-secondary'"
-                                style="flex: 1;"
-                            >عاجلة</button>
+                        <div style="padding:.75rem;background:var(--light);display:flex;gap:.5rem;">
+                            <template x-for="f in ['all','pending','urgent']">
+                                <button @click="ceoFilter=f" class="btn btn-sm" :class="ceoFilter===f?'btn-primary':'btn-secondary'" style="flex:1;" x-text="f==='all'?'الكل':f==='pending'?'معلّقة':'عاجلة'"></button>
+                            </template>
                         </div>
-
-                        <!-- Requests List -->
-                        <template x-for="req in filteredCEORequests" :key="req.id">
-                            <div 
-                                class="request-item" 
-                                :class="{ 'unread': !req.read }"
-                                @click="viewRequest(req)"
-                            >
+                        <template x-for="req in filteredCeoRequests" :key="req.id">
+                            <div class="request-item" :class="{'unread':!req.is_read}" @click="openRequestDetail(req)">
                                 <div class="request-title" x-text="req.title"></div>
                                 <div class="request-meta">
-                                    <span>من: <strong x-text="req.from"></strong></span>
-                                    <span x-text="req.date"></span>
-                                    <span class="status-badge" :class="'status-' + req.status" x-text="req.statusText"></span>
-                                </div>
-                                <div x-show="req.forwarded" style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary);">
-                                    ↪ محوّل من: <span x-text="req.originalBranch"></span>
+                                    <span>من: <strong x-text="req.creator_name||'غير معروف'"></strong></span>
+                                    <span x-text="formatDate(req.created_at)"></span>
+                                    <span class="status-badge" :class="'status-'+req.status" x-text="statusText(req.status)"></span>
                                 </div>
                             </div>
                         </template>
-
-                        <div x-show="filteredCEORequests.length === 0" style="padding: 2rem; text-align: center; color: var(--gray);">
-                            لا توجد طلبات
-                        </div>
+                        <div x-show="filteredCeoRequests.length===0" style="padding:2rem;text-align:center;color:var(--gray);">لا توجد طلبات</div>
                     </div>
                 </div>
-
-                <!-- Logout -->
-                <button class="btn btn-secondary" @click="logout()" style="width: auto; padding: 0.625rem 1rem;">
-                    <span>🚪</span>
-                </button>
+                <button class="btn btn-secondary btn-sm" @click="logout()" style="width:auto;">&#128682; خروج</button>
             </div>
         </header>
 
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" :class="{'active':mobileNav}" @click="mobileNav=false"></div>
+
         <!-- Main Grid -->
         <div class="main-grid">
-            
-            <!-- Sidebar -->
-            <nav class="sidebar">
+            <nav class="sidebar" :class="{'mobile-open':mobileNav}">
                 <ul class="nav-list">
-                    <li class="nav-item">
-                        <a class="nav-link" :class="{ 'active': page === 'dashboard' }" @click="page = 'dashboard'">
-                            <span>📊</span>
-                            <span>لوحة التحكم</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" x-show="canAccess('branches')">
-                        <a class="nav-link" :class="{ 'active': page === 'branches' }" @click="page = 'branches'">
-                            <span>🌿</span>
-                            <span>الفروع</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" x-show="canAccess('requests')">
-                        <a class="nav-link" :class="{ 'active': page === 'requests' }" @click="page = 'requests'">
-                            <span>📝</span>
-                            <span>الطلبات</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" x-show="user.isCEO">
-                        <a class="nav-link" :class="{ 'active': page === 'reports' }" @click="page = 'reports'">
-                            <span>📈</span>
-                            <span>التقارير</span>
-                        </a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" :class="{'active':page==='dashboard'}" @click="goTo('dashboard')">&#128202; لوحة التحكم</a></li>
+                    <li class="nav-item"><a class="nav-link" :class="{'active':page==='branches'}" @click="goTo('branches')">&#127807; الفروع</a></li>
+                    <li class="nav-item"><a class="nav-link" :class="{'active':page==='requests'}" @click="goTo('requests')">&#128221; الطلبات</a></li>
+                    <li class="nav-item" x-show="user.isCEO"><a class="nav-link" :class="{'active':page==='reports'}" @click="goTo('reports')">&#128200; التقارير</a></li>
+                    <li class="nav-item"><a class="nav-link" :class="{'active':page==='orgchart'}" @click="goTo('orgchart')">&#127963; الهيكل التنظيمي</a></li>
                 </ul>
             </nav>
 
-            <!-- Content -->
             <main class="content-area">
-                
-                <!-- Dashboard -->
-                <div x-show="page === 'dashboard'">
-                    <h2 class="page-title">📊 لوحة التحكم</h2>
-                    
+
+                <!-- ===== DASHBOARD ===== -->
+                <div x-show="page==='dashboard'">
+                    <h2 class="page-title">&#128202; لوحة التحكم</h2>
                     <div class="stats-grid">
-                        <div class="stat-card blue">
-                            <div class="stat-value" x-text="stats.employees">0</div>
-                            <div class="stat-label">الموظفين</div>
-                        </div>
-                        <div class="stat-card green">
-                            <div class="stat-value" x-text="stats.active">0</div>
-                            <div class="stat-label">طلبات نشطة</div>
-                        </div>
-                        <div class="stat-card orange">
-                            <div class="stat-value" x-text="stats.pending">0</div>
-                            <div class="stat-label">بانتظار الموافقة</div>
-                        </div>
-                        <div class="stat-card red">
-                            <div class="stat-value" x-text="stats.urgent">0</div>
-                            <div class="stat-label">عاجلة</div>
-                        </div>
+                        <div class="stat-card blue"><div class="stat-value" x-text="stats.employees">0</div><div class="stat-label">الموظفين</div></div>
+                        <div class="stat-card green"><div class="stat-value" x-text="stats.active">0</div><div class="stat-label">طلبات نشطة</div></div>
+                        <div class="stat-card orange"><div class="stat-value" x-text="stats.pending">0</div><div class="stat-label">بانتظار الموافقة</div></div>
+                        <div class="stat-card red"><div class="stat-value" x-text="stats.urgent">0</div><div class="stat-label">عاجلة</div></div>
+                    </div>
+                    <h3 style="margin-bottom:1rem;color:var(--dark);">&#128338; آخر النشاطات</h3>
+                    <div style="background:var(--light);border-radius:.75rem;overflow:hidden;">
+                        <template x-for="act in recentActivity" :key="act.id">
+                            <div class="activity-item">
+                                <div>
+                                    <div style="font-weight:600;" x-text="act.title"></div>
+                                    <div style="font-size:.8rem;color:var(--gray);" x-text="act.creator_name||''"></div>
+                                </div>
+                                <div style="text-align:left;">
+                                    <span class="status-badge" :class="'status-'+act.status" x-text="statusText(act.status)"></span>
+                                    <div style="font-size:.75rem;color:var(--gray);margin-top:.25rem;" x-text="formatDate(act.created_at)"></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div x-show="recentActivity.length===0" style="padding:2rem;text-align:center;color:var(--gray);">لا توجد نشاطات حديثة</div>
                     </div>
                 </div>
 
-                <!-- Branches -->
-                <div x-show="page === 'branches'">
-                    <h2 class="page-title">🌿 إدارة الفروع</h2>
-                    
-                    <div class="branches-container">
-                        <template x-for="(branch, idx) in branches" :key="branch.id">
-                            <div 
-                                class="branch-panel" 
-                                :class="{ 'active': activeBranch === idx }"
-                                @click="setActiveBranch(idx)"
-                            >
+                <!-- ===== BRANCHES ===== -->
+                <div x-show="page==='branches'">
+                    <h2 class="page-title">&#127807; إدارة الفروع</h2>
+                    <div x-show="loadingData" class="loading-overlay"><div class="spinner"></div></div>
+                    <div class="branches-container" x-show="!loadingData">
+                        <template x-for="(branch,idx) in branches" :key="branch.id">
+                            <div class="branch-panel" :class="{'active':activeBranch===idx}" @click="selectBranch(idx)">
                                 <div class="branch-title">
                                     <span x-text="branch.name"></span>
-                                    <span x-show="activeBranch === idx" style="font-size: 0.75rem; opacity: 0.7;">
-                                        (<span x-text="branch.employees?.length || 0"></span> موظف)
+                                    <span x-show="activeBranch===idx" style="font-size:.75rem;opacity:.7;">
+                                        (<span x-text="branch.employees?.length||0"></span> موظف)
                                     </span>
                                 </div>
-
-                                <div class="branch-content" x-show="activeBranch === idx">
+                                <div class="branch-content" x-show="activeBranch===idx">
                                     <div class="emp-list">
-                                        <template x-for="emp in branch.employees" :key="emp.id">
+                                        <template x-for="emp in branch.employees||[]" :key="emp.id">
                                             <div class="emp-card">
                                                 <div class="emp-info">
-                                                    <div class="emp-avatar" x-text="emp.initials"></div>
-                                                    <div>
-                                                        <div class="emp-name" x-text="emp.name"></div>
-                                                        <div class="emp-role" x-text="emp.role"></div>
-                                                    </div>
+                                                    <div class="emp-avatar" x-text="getInitials(emp.name)"></div>
+                                                    <div><div class="emp-name" x-text="emp.name"></div><div class="emp-role" x-text="emp.role_title"></div></div>
                                                 </div>
                                                 <div class="emp-actions">
-                                                    <button class="action-btn info" @click.stop="viewEmp(emp)" title="عرض">👁</button>
-                                                    <button class="action-btn edit" @click.stop="editEmp(emp)" title="تعديل" x-show="canEdit(emp)">✏️</button>
-                                                    <button class="action-btn delete" @click.stop="deleteEmp(emp)" title="حذف" x-show="canDelete(emp)">🗑</button>
+                                                    <button class="action-btn info" @click.stop="viewEmp(emp)" title="عرض">&#128065;</button>
+                                                    <button class="action-btn edit" @click.stop="openEditEmp(emp,branch)" title="تعديل" x-show="canEdit()">&#9998;</button>
+                                                    <button class="action-btn delete" @click.stop="openDeleteEmp(emp,branch)" title="حذف" x-show="canDelete()">&#128465;</button>
                                                 </div>
                                             </div>
                                         </template>
+                                        <div x-show="!branch.employees||branch.employees.length===0" style="padding:2rem;text-align:center;color:var(--gray);">لا يوجد موظفين في هذا الفرع</div>
                                     </div>
-
-                                    <button 
-                                        class="btn btn-primary" 
-                                        style="margin-top: auto;"
-                                        @click="addEmp(branch)"
-                                        x-show="user.isCEO || user.isAdmin"
-                                    >
-                                        <span>+</span> إضافة موظف
-                                    </button>
+                                    <button class="btn btn-primary btn-sm" style="margin-top:auto;" @click.stop="openAddEmp(branch)" x-show="canEdit()">+ إضافة موظف</button>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <!-- Requests -->
-                <div x-show="page === 'requests'">
-                    <h2 class="page-title">📝 إدارة الطلبات</h2>
-                    
-                    <div style="margin-bottom: 1rem; display: flex; gap: 0.75rem;">
-                        <button class="btn btn-primary btn-sm" @click="createRequest()">
-                            <span>+</span> طلب جديد
-                        </button>
+                <!-- ===== REQUESTS ===== -->
+                <div x-show="page==='requests'">
+                    <h2 class="page-title">&#128221; إدارة الطلبات</h2>
+                    <div style="margin-bottom:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" @click="openCreateRequest()">+ طلب جديد</button>
                     </div>
-
-                    <div style="background: var(--light); border-radius: 0.75rem; overflow: hidden;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr style="background: var(--dark); color: white;">
-                                    <th style="padding: 0.875rem; text-align: right;">الطلب</th>
-                                    <th style="padding: 0.875rem; text-align: right;">المرسل</th>
-                                    <th style="padding: 0.875rem; text-align: right;">الحالة</th>
-                                    <th style="padding: 0.875rem; text-align: right;">إجراء</th>
-                                </tr>
-                            </thead>
+                    <div x-show="loadingData" class="loading-overlay"><div class="spinner"></div></div>
+                    <div style="background:var(--light);border-radius:.75rem;overflow:hidden;" x-show="!loadingData">
+                        <table class="data-table">
+                            <thead><tr><th>الطلب</th><th>المرسل</th><th>الحالة</th><th>إجراء</th></tr></thead>
                             <tbody>
                                 <template x-for="req in myRequests" :key="req.id">
-                                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                                        <td style="padding: 0.875rem;">
-                                            <div style="font-weight: 600;" x-text="req.title"></div>
-                                            <div style="font-size: 0.8rem; color: var(--gray);" x-text="req.date"></div>
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight:600;" x-text="req.title"></div>
+                                            <div style="font-size:.8rem;color:var(--gray);" x-text="formatDate(req.created_at)"></div>
                                         </td>
-                                        <td style="padding: 0.875rem;" x-text="req.from"></td>
-                                        <td style="padding: 0.875rem;">
-                                            <span class="status-badge" :class="'status-' + req.status" x-text="req.statusText"></span>
-                                        </td>
-                                        <td style="padding: 0.875rem;">
-                                            <button class="btn btn-primary btn-sm" @click="viewRequest(req)">عرض</button>
-                                            <button 
-                                                class="btn btn-sm" 
-                                                style="background: var(--warning);"
-                                                @click="openForward(req)"
-                                                x-show="canForward(req)"
-                                            >
-                                                ↪ تحويل
-                                            </button>
+                                        <td x-text="req.creator_name||'أنا'"></td>
+                                        <td><span class="status-badge" :class="'status-'+req.status" x-text="statusText(req.status)"></span></td>
+                                        <td>
+                                            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                                                <button class="btn btn-primary btn-sm" @click="openRequestDetail(req)">عرض</button>
+                                                <button class="btn btn-sm" style="background:var(--warning);color:white;" @click="openForward(req)" x-show="canForward(req)">&#8618; تحويل</button>
+                                                <button class="btn btn-success btn-sm" @click="updateReqStatus(req,'approved')" x-show="user.isCEO && req.status==='pending'">&#10004; موافقة</button>
+                                                <button class="btn btn-danger btn-sm" @click="updateReqStatus(req,'rejected')" x-show="user.isCEO && req.status==='pending'">&#10008; رفض</button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>
                             </tbody>
                         </table>
+                        <div x-show="myRequests.length===0" style="padding:2rem;text-align:center;color:var(--gray);">لا توجد طلبات حاليا</div>
                     </div>
                 </div>
+
+                <!-- ===== REPORTS ===== -->
+                <div x-show="page==='reports'">
+                    <h2 class="page-title">&#128200; التقارير</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card blue"><div class="stat-value" x-text="reportData.total">0</div><div class="stat-label">إجمالي الطلبات</div></div>
+                        <div class="stat-card green"><div class="stat-value" x-text="reportData.thisMonth">0</div><div class="stat-label">طلبات هذا الشهر</div></div>
+                        <div class="stat-card orange"><div class="stat-value" x-text="reportData.approvalRate+'%'">0%</div><div class="stat-label">نسبة الموافقة</div></div>
+                        <div class="stat-card red"><div class="stat-value" x-text="reportData.rejected">0</div><div class="stat-label">مرفوضة</div></div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-box"><h4>&#128202; الطلبات حسب الفرع</h4><canvas id="branchChart"></canvas></div>
+                        <div class="chart-box"><h4>&#128203; توزيع حالات الطلبات</h4><canvas id="statusChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- ===== ORG CHART ===== -->
+                <div x-show="page==='orgchart'">
+                    <h2 class="page-title">&#127963; الهيكل التنظيمي</h2>
+                    <div class="org-tree">
+                        <div class="org-node ceo-node">
+                            <div class="node-title">&#128081; المدير العام</div>
+                            <div class="node-sub">CEO</div>
+                        </div>
+                        <div class="org-connector"></div>
+                        <div class="org-node admin-node">
+                            <div class="node-title">&#9881; الإدارة المركزية</div>
+                            <div class="node-sub">Admin</div>
+                        </div>
+                        <div class="org-connector"></div>
+                        <div class="org-h-line" :style="'width:'+Math.max(branches.length*110,200)+'px'"></div>
+                        <div class="org-branches-row">
+                            <template x-for="(b,i) in branches" :key="b.id">
+                                <div class="org-branch-col">
+                                    <div class="org-connector" style="height:20px;"></div>
+                                    <div class="org-node" @click="goTo('branches');$nextTick(()=>selectBranch(i))">
+                                        <div class="node-title" x-text="b.name"></div>
+                                        <div class="node-count" x-text="(b.employees?.length||0)+' موظف'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
 
-    <!-- ========== FORWARD MODAL ========== -->
-    <div class="modal-overlay" :class="{ 'active': forwardModal }" @click="forwardModal = false">
-        <div class="modal" @click.stop>
-            <div class="modal-header">
-                <h3>↪ تحويل الطلب</h3>
-            </div>
-            <div class="modal-body">
-                <p style="margin-bottom: 1rem; color: var(--gray);">
-                    الطلب: <strong x-text="forwardingRequest?.title"></strong>
-                </p>
+    <!-- ========== MODALS ========== -->
 
+    <!-- Forward Modal -->
+    <div class="modal-overlay" :class="{'active':forwardModal}" @click="forwardModal=false">
+        <div class="modal" @click.stop>
+            <div class="modal-header"><h3>&#8618; تحويل الطلب</h3></div>
+            <div class="modal-body">
+                <p style="margin-bottom:1rem;color:var(--gray);">الطلب: <strong x-text="forwardingRequest?.title"></strong></p>
                 <div class="form-group">
                     <label>تحويل إلى:</label>
                     <div class="forward-options">
-                        <label class="forward-option" :class="{ 'selected': forwardTarget === 'ceo' }">
+                        <label class="forward-option" :class="{'selected':forwardTarget==='ceo'}">
                             <input type="radio" value="ceo" x-model="forwardTarget">
-                            <div>
-                                <div style="font-weight: 600;">👑 المدير العام</div>
-                                <div style="font-size: 0.8rem; color: var(--gray);">للطلبات الاستراتيجية</div>
-                            </div>
+                            <div><div style="font-weight:600;">&#128081; المدير العام</div><div style="font-size:.8rem;color:var(--gray);">للطلبات الاستراتيجية</div></div>
                         </label>
                         <template x-for="b in branches" :key="b.id">
-                            <label class="forward-option" :class="{ 'selected': forwardTarget === b.id }">
+                            <label class="forward-option" :class="{'selected':forwardTarget===b.id}">
                                 <input type="radio" :value="b.id" x-model="forwardTarget">
-                                <div>
-                                    <div style="font-weight: 600;" x-text="b.name"></div>
-                                    <div style="font-size: 0.8rem; color: var(--gray);">
-                                        <span x-text="b.employees?.length || 0"></span> موظف
-                                    </div>
-                                </div>
+                                <div><div style="font-weight:600;" x-text="b.name"></div><div style="font-size:.8rem;color:var(--gray);"><span x-text="b.employees?.length||0"></span> موظف</div></div>
                             </label>
                         </template>
                     </div>
                 </div>
-
-                <div class="form-group" style="margin-top: 1rem;">
+                <div class="form-group" style="margin-top:1rem;">
                     <label>ملاحظات التحويل:</label>
-                    <textarea 
-                        class="form-control" 
-                        x-model="forwardNote"
-                        placeholder="سبب التحويل أو أي توضيح..."
-                        style="min-height: 100px; resize: vertical;"
-                    ></textarea>
+                    <textarea class="form-control" x-model="forwardNote" placeholder="سبب التحويل أو أي توضيح..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary btn-sm" @click="confirmForward()">✓ تأكيد التحويل</button>
-                <button class="btn btn-secondary btn-sm" @click="forwardModal = false">إلغاء</button>
+                <button class="btn btn-primary btn-sm" @click="confirmForward()" :disabled="!forwardTarget">&#10004; تأكيد التحويل</button>
+                <button class="btn btn-secondary btn-sm" @click="forwardModal=false">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Employee Modal -->
+    <div class="modal-overlay" :class="{'active':empModal}" @click="empModal=false">
+        <div class="modal" @click.stop>
+            <div class="modal-header"><h3 x-text="empForm.id?'&#9998; تعديل موظف':'+ إضافة موظف'"></h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" class="form-control" x-model="empForm.name" placeholder="مثال: أحمد محمد" required>
+                </div>
+                <div class="form-group">
+                    <label>المسمى الوظيفي</label>
+                    <input type="text" class="form-control" x-model="empForm.role_title" placeholder="مثال: مدير فرع">
+                </div>
+                <div class="form-group">
+                    <label>الهاتف</label>
+                    <input type="tel" class="form-control" x-model="empForm.phone" placeholder="05XXXXXXXX" dir="ltr">
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" class="form-control" x-model="empForm.email" placeholder="user@company.com" dir="ltr">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-sm" @click="saveEmployee()" :disabled="!empForm.name">&#10004; حفظ</button>
+                <button class="btn btn-secondary btn-sm" @click="empModal=false">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal-overlay" :class="{'active':deleteModal}" @click="deleteModal=false">
+        <div class="modal" @click.stop>
+            <div class="modal-header" style="background:linear-gradient(135deg,var(--danger),#c53030);"><h3>&#128465; تأكيد الحذف</h3></div>
+            <div class="modal-body" style="text-align:center;padding:2rem;">
+                <p style="font-size:1.1rem;margin-bottom:1rem;">هل أنت متأكد من حذف الموظف؟</p>
+                <p style="font-weight:700;font-size:1.2rem;color:var(--danger);" x-text="deleteTarget?.name"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger btn-sm" @click="confirmDelete()">&#128465; حذف نهائي</button>
+                <button class="btn btn-secondary btn-sm" @click="deleteModal=false">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Request Modal -->
+    <div class="modal-overlay" :class="{'active':reqModal}" @click="reqModal=false">
+        <div class="modal" @click.stop>
+            <div class="modal-header"><h3>&#128221; طلب جديد</h3></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>عنوان الطلب</label>
+                    <input type="text" class="form-control" x-model="reqForm.title" placeholder="مثال: طلب إجازة" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea class="form-control" x-model="reqForm.description" placeholder="تفاصيل الطلب..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select class="form-control" x-model="reqForm.priority">
+                        <option value="normal">عادية</option>
+                        <option value="urgent">عاجلة</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-sm" @click="submitRequest()" :disabled="!reqForm.title">&#10004; إرسال</button>
+                <button class="btn btn-secondary btn-sm" @click="reqModal=false">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Detail Modal -->
+    <div class="modal-overlay" :class="{'active':detailModal}" @click="detailModal=false">
+        <div class="modal" @click.stop>
+            <div class="modal-header"><h3>&#128203; تفاصيل الطلب</h3></div>
+            <div class="modal-body" x-show="detailRequest">
+                <div style="margin-bottom:1rem;">
+                    <div style="font-weight:700;font-size:1.1rem;margin-bottom:.5rem;" x-text="detailRequest?.title"></div>
+                    <span class="status-badge" :class="'status-'+(detailRequest?.status||'')" x-text="statusText(detailRequest?.status)"></span>
+                </div>
+                <div x-show="detailRequest?.description" style="margin-bottom:1rem;padding:1rem;background:var(--light);border-radius:.5rem;">
+                    <p x-text="detailRequest?.description"></p>
+                </div>
+                <div style="font-size:.85rem;color:var(--gray);margin-bottom:1rem;">
+                    <p>&#128197; التاريخ: <span x-text="formatDate(detailRequest?.created_at)"></span></p>
+                    <p>&#128100; المرسل: <span x-text="detailRequest?.creator_name||'غير معروف'"></span></p>
+                    <p x-show="detailRequest?.priority==='urgent'" style="color:var(--danger);font-weight:600;">&#9888; طلب عاجل</p>
+                </div>
+                <div x-show="detailForwards.length>0">
+                    <h4 style="margin-bottom:.5rem;color:var(--dark);">&#8618; سجل التحويل</h4>
+                    <template x-for="fwd in detailForwards" :key="fwd.id">
+                        <div style="padding:.75rem;background:var(--light);border-radius:.5rem;margin-bottom:.5rem;font-size:.85rem;">
+                            <div>&#8618; تم التحويل بواسطة: <strong x-text="fwd.forwarder_name||''"></strong></div>
+                            <div x-show="fwd.note" style="color:var(--gray);margin-top:.25rem;" x-text="'ملاحظة: '+fwd.note"></div>
+                            <div style="color:var(--gray);font-size:.75rem;margin-top:.25rem;" x-text="formatDate(fwd.created_at)"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" @click="detailModal=false">إغلاق</button>
             </div>
         </div>
     </div>
 
     <!-- ========== NOTIFICATION ========== -->
-    <div class="notification" :class="{ 'show': notification.show, [notification.type]: true }">
-        <span x-text="notification.icon">✓</span>
-        <span x-text="notification.message"></span>
+    <div class="notification" :class="{'show':notif.show, [notif.type]:true}">
+        <span x-text="notif.icon"></span>
+        <span x-text="notif.message"></span>
     </div>
 
-    <!-- ========== DEV ACCESS (Hidden) ========== -->
-    <button class="dev-trigger" @click="devLogin()"></button>
+<script>
+// =============================================
+// Supabase Configuration
+// =============================================
+function getSupabaseConfig() {
+    const stored = localStorage.getItem('erp_supabase_config');
+    if (stored) {
+        try { return JSON.parse(stored); } catch(e) {}
+    }
+    return null;
+}
 
-    <!-- ========== JAVASCRIPT ========== -->
-    <script type="module">
-        // Import modules
-        import { handleLogin as authLogin, canAccess as authCanAccess, canEdit as authCanEdit, canDelete as authCanDelete, canForward as authCanForward } from './src/auth.js';
-        import { getDefaultBranches, loadDemoEmployees, addEmployee, deleteEmployee } from './src/components/branches.js';
-        import { getDemoCEORequests, getDemoMyRequests, createRequest as createNewRequest, forwardRequest, filterRequests } from './src/components/requests.js';
+let sb = null;
+const cfg = getSupabaseConfig();
+if (cfg && cfg.url && cfg.key) {
+    sb = window.supabase.createClient(cfg.url, cfg.key);
+}
 
-        // ===== Main App =====
-        window.erpApp = () => ({
-            // State
-            auth: false,
-            page: 'dashboard',
-            activeBranch: 0,
-            ceoOpen: false,
-            ceoFilter: 'all',
-            forwardModal: false,
-            loginLoading: false,
-            
-            // User
-            user: {
-                name: '',
-                initials: '',
-                role: '',
-                department: '',
-                isCEO: false,
-                isAdmin: false
-            },
-            
-            // Forms
-            loginForm: {
-                username: '',
-                password: '',
-                department: ''
-            },
-            forwardTarget: '',
-            forwardNote: '',
-            forwardingRequest: null,
-            
-            // Data
-            branches: getDefaultBranches(),
-            ceoRequests: [],
-            myRequests: [],
-            
-            stats: {
-                employees: 0,
-                active: 0,
-                pending: 0,
-                urgent: 0
-            },
-            
-            notification: {
-                show: false,
-                type: 'success',
-                icon: '✓',
-                message: ''
-            },
+// =============================================
+// Main App
+// =============================================
+function erpApp() {
+    return {
+        // Setup
+        needsSetup: !sb,
+        setupForm: { url: '', key: '' },
 
-            // ===== INIT =====
-            async init() {
-                this.branches = loadDemoEmployees(this.branches);
-                this.ceoRequests = getDemoCEORequests();
-                this.myRequests = getDemoMyRequests();
-                this.updateStats();
-            },
+        // Auth
+        auth: false,
+        loadingSession: !!sb,
+        loginLoading: false,
+        loginError: '',
+        loginForm: { email: '', password: '' },
 
-            // ===== AUTH =====
-            async handleLogin() {
-                this.loginLoading = true;
-                
-                const userData = await authLogin(
-                    this.loginForm.username, 
-                    this.loginForm.password, 
-                    this.loginForm.department, 
-                    this.branches
-                );
-                
-                this.user = userData;
+        // User
+        user: { name:'', initials:'', role:'', roleName:'', branchName:'', branch_id:null, isCEO:false, isAdmin:false },
+
+        // UI
+        page: 'dashboard',
+        mobileNav: false,
+        activeBranch: 0,
+        ceoOpen: false,
+        ceoFilter: 'all',
+        loadingData: false,
+
+        // Data
+        branches: [],
+        myRequests: [],
+        allRequests: [],
+        recentActivity: [],
+        stats: { employees:0, active:0, pending:0, urgent:0 },
+        reportData: { total:0, thisMonth:0, approvalRate:0, rejected:0 },
+
+        // Modals
+        forwardModal: false,
+        forwardTarget: '',
+        forwardNote: '',
+        forwardingRequest: null,
+
+        empModal: false,
+        empForm: { id:null, name:'', role_title:'موظف', phone:'', email:'', branch_id:null },
+        empBranch: null,
+
+        deleteModal: false,
+        deleteTarget: null,
+        deleteBranch: null,
+
+        reqModal: false,
+        reqForm: { title:'', description:'', priority:'normal' },
+
+        detailModal: false,
+        detailRequest: null,
+        detailForwards: [],
+
+        // Notification
+        notif: { show:false, type:'success', icon:'', message:'' },
+
+        // Charts
+        branchChartInstance: null,
+        statusChartInstance: null,
+
+        // ===== INIT =====
+        async init() {
+            if (!sb) return;
+            try {
+                const { data:{ session } } = await sb.auth.getSession();
+                if (session) {
+                    await this.loadProfile(session.user.id);
+                    this.auth = true;
+                    await this.loadAllData();
+                }
+            } catch(e) {
+                console.error('Init error:', e);
+            }
+            this.loadingSession = false;
+
+            sb.auth.onAuthStateChange((event) => {
+                if (event === 'SIGNED_OUT') {
+                    this.auth = false;
+                    this.user = { name:'', initials:'', role:'', roleName:'', branchName:'', branch_id:null, isCEO:false, isAdmin:false };
+                }
+            });
+        },
+
+        // ===== SETUP =====
+        saveSetup() {
+            if (!this.setupForm.url || !this.setupForm.key) {
+                this.showNotif('error', '!', 'أدخل جميع البيانات');
+                return;
+            }
+            localStorage.setItem('erp_supabase_config', JSON.stringify({ url:this.setupForm.url, key:this.setupForm.key }));
+            location.reload();
+        },
+
+        // ===== AUTH =====
+        async handleLogin() {
+            this.loginError = '';
+            this.loginLoading = true;
+            try {
+                const { data, error } = await sb.auth.signInWithPassword({
+                    email: this.loginForm.email,
+                    password: this.loginForm.password
+                });
+                if (error) throw error;
+                await this.loadProfile(data.user.id);
                 this.auth = true;
-                this.loginLoading = false;
-                this.showNotif('success', '✓', `مرحباً ${this.user.name}`);
-            },
+                await this.loadAllData();
+                this.showNotif('success', '\u2713', '\u0645\u0631\u062d\u0628\u0627\u064b ' + this.user.name);
+            } catch(e) {
+                const msg = e.message || '';
+                if (msg.includes('Invalid login')) this.loginError = '\u0627\u0644\u0628\u0631\u064a\u062f \u0623\u0648 \u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631 \u063a\u064a\u0631 \u0635\u062d\u064a\u062d\u0629';
+                else if (msg.includes('Email not confirmed')) this.loginError = '\u0627\u0644\u0628\u0631\u064a\u062f \u063a\u064a\u0631 \u0645\u064f\u0641\u0639\u0651\u0644 - \u062a\u062d\u0642\u0642 \u0645\u0646 \u0628\u0631\u064a\u062f\u0643';
+                else this.loginError = '\u062e\u0637\u0623 \u0641\u064a \u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644: ' + msg;
+            }
+            this.loginLoading = false;
+        },
 
-            logout() {
-                this.auth = false;
-                this.user = {};
-                this.page = 'dashboard';
-                this.ceoOpen = false;
-            },
+        async loadProfile(userId) {
+            const { data: profile } = await sb.from('profiles').select('*, branches(name)').eq('id', userId).single();
+            if (profile) {
+                this.user = {
+                    id: profile.id,
+                    name: profile.full_name,
+                    initials: this.getInitials(profile.full_name),
+                    role: profile.role,
+                    roleName: profile.role === 'ceo' ? '\u0627\u0644\u0645\u062f\u064a\u0631 \u0627\u0644\u0639\u0627\u0645' : profile.role === 'admin' ? '\u0645\u062f\u064a\u0631 \u0627\u0644\u0625\u062f\u0627\u0631\u0629' : '\u0645\u0648\u0638\u0641',
+                    branchName: profile.branches?.name || '\u0627\u0644\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u0639\u0644\u064a\u0627',
+                    branch_id: profile.branch_id,
+                    isCEO: profile.role === 'ceo',
+                    isAdmin: profile.role === 'admin'
+                };
+            }
+        },
 
-            // ===== NAVIGATION =====
-            setActiveBranch(idx) {
-                this.activeBranch = idx;
-            },
+        async logout() {
+            await sb.auth.signOut();
+            this.auth = false;
+            this.page = 'dashboard';
+            this.ceoOpen = false;
+        },
 
-            closeDropdowns(e) {
-                if (!e.target.closest('.ceo-btn') && !e.target.closest('.ceo-dropdown')) {
-                    this.ceoOpen = false;
+        // ===== DATA LOADING =====
+        async loadAllData() {
+            this.loadingData = true;
+            await Promise.all([
+                this.loadBranches(),
+                this.loadRequests(),
+                this.loadStats()
+            ]);
+            this.loadingData = false;
+        },
+
+        async loadBranches() {
+            const { data } = await sb.from('branches').select('*').order('code');
+            if (data) {
+                this.branches = data.map(b => ({ ...b, employees: [] }));
+                // Load employees for all branches
+                const { data: emps } = await sb.from('employees').select('*').order('created_at');
+                if (emps) {
+                    for (const emp of emps) {
+                        const branch = this.branches.find(b => b.id === emp.branch_id);
+                        if (branch) branch.employees.push(emp);
+                    }
                 }
-            },
+            }
+        },
 
-            // ===== CEO =====
-            toggleCEO() {
-                this.ceoOpen = !this.ceoOpen;
-            },
+        async loadRequests() {
+            let query = sb.from('requests').select('*, creator:profiles!created_by(full_name)').order('created_at', { ascending: false });
+            const { data } = await query;
+            if (data) {
+                const mapped = data.map(r => ({ ...r, creator_name: r.creator?.full_name || '' }));
+                this.myRequests = mapped;
+                this.allRequests = mapped;
+                this.recentActivity = mapped.slice(0, 5);
+            }
+        },
 
-            get filteredCEORequests() {
-                return filterRequests(this.ceoRequests, this.ceoFilter);
-            },
+        async loadStats() {
+            // Employee count
+            const { count: empCount } = await sb.from('employees').select('id', { count:'exact', head:true });
+            // Request counts
+            const { data: reqs } = await sb.from('requests').select('status, priority');
+            const all = reqs || [];
+            this.stats = {
+                employees: empCount || 0,
+                active: all.filter(r => r.status === 'pending' || r.status === 'forwarded').length,
+                pending: all.filter(r => r.status === 'pending').length,
+                urgent: all.filter(r => r.priority === 'urgent' && r.status !== 'approved' && r.status !== 'rejected').length
+            };
+        },
 
-            get unreadCEOCount() {
-                return this.ceoRequests.filter(r => !r.read).length;
-            },
+        // ===== NAVIGATION =====
+        goTo(p) {
+            this.page = p;
+            this.mobileNav = false;
+            if (p === 'reports') this.$nextTick(() => this.loadReports());
+            if (p === 'requests') this.loadRequests();
+            if (p === 'dashboard') { this.loadStats(); this.loadRequests(); }
+        },
 
-            filterCEO(type) {
-                this.ceoFilter = type;
-            },
+        closeDropdowns(e) {
+            if (!e.target.closest('.ceo-btn') && !e.target.closest('.ceo-dropdown')) this.ceoOpen = false;
+        },
 
-            // ===== PERMISSIONS =====
-            canAccess(page) {
-                return authCanAccess(this.user, page);
-            },
+        // ===== BRANCHES =====
+        selectBranch(idx) {
+            this.activeBranch = idx;
+        },
 
-            canEdit(emp) {
-                return authCanEdit(this.user);
-            },
+        // ===== EMPLOYEES =====
+        openAddEmp(branch) {
+            this.empForm = { id:null, name:'', role_title:'\u0645\u0648\u0638\u0641', phone:'', email:'', branch_id:branch.id };
+            this.empBranch = branch;
+            this.empModal = true;
+        },
 
-            canDelete(emp) {
-                return authCanDelete(this.user);
-            },
+        openEditEmp(emp, branch) {
+            this.empForm = { id:emp.id, name:emp.name, role_title:emp.role_title, phone:emp.phone||'', email:emp.email||'', branch_id:branch.id };
+            this.empBranch = branch;
+            this.empModal = true;
+        },
 
-            canForward(req) {
-                return authCanForward(this.user, req);
-            },
+        async saveEmployee() {
+            if (!this.empForm.name) return;
+            try {
+                if (this.empForm.id) {
+                    // Update
+                    const { error } = await sb.from('employees').update({
+                        name: this.empForm.name,
+                        role_title: this.empForm.role_title,
+                        phone: this.empForm.phone || null,
+                        email: this.empForm.email || null
+                    }).eq('id', this.empForm.id);
+                    if (error) throw error;
+                    this.showNotif('success', '\u2713', '\u062a\u0645 \u0627\u0644\u062a\u0639\u062f\u064a\u0644');
+                } else {
+                    // Insert
+                    const { error } = await sb.from('employees').insert({
+                        name: this.empForm.name,
+                        role_title: this.empForm.role_title,
+                        phone: this.empForm.phone || null,
+                        email: this.empForm.email || null,
+                        branch_id: this.empForm.branch_id
+                    });
+                    if (error) throw error;
+                    this.showNotif('success', '\u2713', '\u062a\u0645\u062a \u0627\u0644\u0625\u0636\u0627\u0641\u0629');
+                }
+                this.empModal = false;
+                await this.loadBranches();
+                await this.loadStats();
+            } catch(e) {
+                this.showNotif('error', '!', e.message.includes('permission') ? '\u0644\u064a\u0633 \u0644\u062f\u064a\u0643 \u0635\u0644\u0627\u062d\u064a\u0629' : '\u062e\u0637\u0623: ' + e.message);
+            }
+        },
 
-            // ===== EMPLOYEES =====
-            viewEmp(emp) {
-                this.showNotif('info', '👁', `عرض: ${emp.name}`);
-            },
+        openDeleteEmp(emp, branch) {
+            this.deleteTarget = emp;
+            this.deleteBranch = branch;
+            this.deleteModal = true;
+        },
 
-            editEmp(emp) {
-                const newRole = prompt('المسمى الجديد:', emp.role);
-                if (newRole) emp.role = newRole;
-            },
+        async confirmDelete() {
+            try {
+                const { error } = await sb.from('employees').delete().eq('id', this.deleteTarget.id);
+                if (error) throw error;
+                this.deleteModal = false;
+                this.showNotif('success', '\u2713', '\u062a\u0645 \u0627\u0644\u062d\u0630\u0641');
+                await this.loadBranches();
+                await this.loadStats();
+            } catch(e) {
+                this.showNotif('error', '!', e.message.includes('permission') ? '\u0644\u064a\u0633 \u0644\u062f\u064a\u0643 \u0635\u0644\u0627\u062d\u064a\u0629 \u0627\u0644\u062d\u0630\u0641' : '\u062e\u0637\u0623: ' + e.message);
+            }
+        },
 
-            deleteEmp(emp) {
-                if (!confirm(`حذف ${emp.name}؟`)) return;
-                const branch = this.branches[this.activeBranch];
-                deleteEmployee(branch, emp.id);
-                this.updateStats();
-                this.showNotif('success', '🗑', 'تم الحذف');
-            },
+        viewEmp(emp) {
+            let info = '\u0627\u0644\u0627\u0633\u0645: ' + emp.name + '\n\u0627\u0644\u0645\u0633\u0645\u0649: ' + emp.role_title;
+            if (emp.phone) info += '\n\u0627\u0644\u0647\u0627\u062a\u0641: ' + emp.phone;
+            if (emp.email) info += '\n\u0627\u0644\u0628\u0631\u064a\u062f: ' + emp.email;
+            this.showNotif('info', '\uD83D\uDC64', emp.name + ' - ' + emp.role_title);
+        },
 
-            addEmp(branch) {
-                const name = prompt('اسم الموظف:');
-                if (!name) return;
-                const role = prompt('المسمى:', 'موظف') || 'موظف';
-                
-                addEmployee(branch, name, role);
-                this.updateStats();
-                this.showNotif('success', '✓', 'تمت الإضافة');
-            },
+        // ===== REQUESTS =====
+        openCreateRequest() {
+            this.reqForm = { title:'', description:'', priority:'normal' };
+            this.reqModal = true;
+        },
 
-            // ===== REQUESTS =====
-            createRequest() {
-                const title = prompt('عنوان الطلب:');
-                if (!title) return;
-                
-                this.myRequests.push(createNewRequest(title, this.user.name));
-                this.showNotif('success', '✓', 'تم إرسال الطلب');
-            },
+        async submitRequest() {
+            if (!this.reqForm.title) return;
+            try {
+                const { error } = await sb.from('requests').insert({
+                    title: this.reqForm.title,
+                    description: this.reqForm.description || null,
+                    priority: this.reqForm.priority,
+                    created_by: this.user.id,
+                    branch_id: this.user.branch_id,
+                    status: this.reqForm.priority === 'urgent' ? 'urgent' : 'pending'
+                });
+                if (error) throw error;
+                this.reqModal = false;
+                this.showNotif('success', '\u2713', '\u062a\u0645 \u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u0637\u0644\u0628');
+                await this.loadRequests();
+                await this.loadStats();
+            } catch(e) {
+                this.showNotif('error', '!', '\u062e\u0637\u0623: ' + e.message);
+            }
+        },
 
-            viewRequest(req) {
-                req.read = true;
-                alert(`${req.title}\nالحالة: ${req.statusText}\n${req.forwarded ? `محوّل من: ${req.originalBranch}` : ''}`);
-            },
+        async openRequestDetail(req) {
+            this.detailRequest = req;
+            // Mark as read
+            if (!req.is_read && this.user.isCEO) {
+                await sb.from('requests').update({ is_read: true }).eq('id', req.id);
+                req.is_read = true;
+            }
+            // Load forwards
+            const { data: fwds } = await sb.from('request_forwards')
+                .select('*, forwarder:profiles!forwarded_by(full_name)')
+                .eq('request_id', req.id)
+                .order('created_at', { ascending: false });
+            this.detailForwards = (fwds || []).map(f => ({ ...f, forwarder_name: f.forwarder?.full_name || '' }));
+            this.detailModal = true;
+        },
 
-            openForward(req) {
-                this.forwardingRequest = req;
-                this.forwardModal = true;
-                this.forwardTarget = '';
-                this.forwardNote = '';
-            },
+        async updateReqStatus(req, status) {
+            try {
+                const { error } = await sb.from('requests').update({ status }).eq('id', req.id);
+                if (error) throw error;
+                req.status = status;
+                this.showNotif('success', '\u2713', status === 'approved' ? '\u062a\u0645\u062a \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629' : '\u062a\u0645 \u0627\u0644\u0631\u0641\u0636');
+                await this.loadStats();
+            } catch(e) {
+                this.showNotif('error', '!', '\u062e\u0637\u0623: ' + e.message);
+            }
+        },
 
-            confirmForward() {
-                if (!this.forwardTarget) {
-                    alert('اختر الجهة المحول إليها');
-                    return;
+        // ===== FORWARD =====
+        openForward(req) {
+            this.forwardingRequest = req;
+            this.forwardTarget = '';
+            this.forwardNote = '';
+            this.forwardModal = true;
+        },
+
+        async confirmForward() {
+            if (!this.forwardTarget) return;
+            try {
+                // Insert forward record
+                const { error: fwdErr } = await sb.from('request_forwards').insert({
+                    request_id: this.forwardingRequest.id,
+                    forwarded_by: this.user.id,
+                    from_branch_id: this.user.branch_id,
+                    to_branch_id: this.forwardTarget === 'ceo' ? null : this.forwardTarget,
+                    to_role: this.forwardTarget === 'ceo' ? 'ceo' : null,
+                    note: this.forwardNote || null
+                });
+                if (fwdErr) throw fwdErr;
+
+                // Update request status
+                const { error: reqErr } = await sb.from('requests').update({ status: 'forwarded' }).eq('id', this.forwardingRequest.id);
+                if (reqErr) throw reqErr;
+
+                this.forwardModal = false;
+                this.showNotif('success', '\u21AA', '\u062a\u0645 \u0627\u0644\u062a\u062d\u0648\u064a\u0644 \u0628\u0646\u062c\u0627\u062d');
+                await this.loadRequests();
+                await this.loadStats();
+            } catch(e) {
+                this.showNotif('error', '!', '\u062e\u0637\u0623: ' + e.message);
+            }
+        },
+
+        canForward(req) {
+            return (this.user.isCEO || this.user.isAdmin) && req.status !== 'forwarded' && req.status !== 'approved' && req.status !== 'rejected';
+        },
+
+        // ===== CEO DROPDOWN =====
+        get filteredCeoRequests() {
+            if (this.ceoFilter === 'all') return this.allRequests;
+            if (this.ceoFilter === 'urgent') return this.allRequests.filter(r => r.priority === 'urgent');
+            return this.allRequests.filter(r => r.status === this.ceoFilter);
+        },
+
+        get unreadCount() {
+            return this.allRequests.filter(r => !r.is_read).length;
+        },
+
+        // ===== REPORTS =====
+        async loadReports() {
+            const { data: reqs } = await sb.from('requests').select('*, branch:branches!branch_id(name)');
+            const all = reqs || [];
+            const now = new Date();
+            const thisMonth = all.filter(r => new Date(r.created_at).getMonth() === now.getMonth() && new Date(r.created_at).getFullYear() === now.getFullYear());
+            const approved = all.filter(r => r.status === 'approved').length;
+
+            this.reportData = {
+                total: all.length,
+                thisMonth: thisMonth.length,
+                approvalRate: all.length > 0 ? Math.round((approved / all.length) * 100) : 0,
+                rejected: all.filter(r => r.status === 'rejected').length
+            };
+
+            // Branch chart
+            this.$nextTick(() => {
+                const branchCounts = {};
+                for (const b of this.branches) branchCounts[b.name] = 0;
+                for (const r of all) {
+                    const bName = r.branch?.name;
+                    if (bName && branchCounts.hasOwnProperty(bName)) branchCounts[bName]++;
                 }
 
-                forwardRequest(
-                    this.forwardingRequest, 
-                    this.forwardTarget, 
-                    this.forwardNote, 
-                    this.user.name, 
-                    this.user.department, 
-                    this.branches
-                );
-
-                if (this.forwardTarget === 'ceo') {
-                    this.ceoRequests.unshift({
-                        ...this.forwardingRequest,
-                        id: Date.now(),
-                        date: new Date().toISOString().split('T')[0],
-                        read: false
+                const bCtx = document.getElementById('branchChart');
+                if (bCtx) {
+                    if (this.branchChartInstance) this.branchChartInstance.destroy();
+                    this.branchChartInstance = new Chart(bCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(branchCounts),
+                            datasets: [{ label: '\u0639\u062f\u062f \u0627\u0644\u0637\u0644\u0628\u0627\u062a', data: Object.values(branchCounts), backgroundColor: 'rgba(102,126,234,.7)', borderRadius: 8 }]
+                        },
+                        options: { responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ stepSize:1 } } } }
                     });
                 }
 
-                this.forwardModal = false;
-                this.showNotif('success', '↪', 'تم التحويل بنجاح');
-            },
+                // Status chart
+                const statusCounts = { pending:0, approved:0, rejected:0, forwarded:0, urgent:0 };
+                for (const r of all) { if (statusCounts.hasOwnProperty(r.status)) statusCounts[r.status]++; }
 
-            // ===== UTILS =====
-            updateStats() {
-                this.stats.employees = this.branches.reduce((sum, b) => sum + (b.employees?.length || 0), 0);
-                this.stats.active = this.myRequests.filter(r => r.status === 'pending').length;
-                this.stats.pending = this.ceoRequests.filter(r => r.status === 'pending').length;
-                this.stats.urgent = this.ceoRequests.filter(r => r.status === 'urgent').length;
-            },
-
-            showNotif(type, icon, message) {
-                this.notification = { show: true, type, icon, message };
-                setTimeout(() => this.notification.show = false, 3000);
-            },
-
-            devLogin() {
-                const pass = prompt('كلمة مرور المطور:');
-                if (pass === 'Dev@2024!') {
-                    this.user.isCEO = true;
-                    this.showNotif('success', '⚡', 'وضع المطور مفعل');
+                const sCtx = document.getElementById('statusChart');
+                if (sCtx) {
+                    if (this.statusChartInstance) this.statusChartInstance.destroy();
+                    this.statusChartInstance = new Chart(sCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['\u0645\u0639\u0644\u0651\u0642', '\u0645\u0648\u0627\u0641\u0642', '\u0645\u0631\u0641\u0648\u0636', '\u0645\u062d\u0648\u0651\u0644', '\u0639\u0627\u062c\u0644'],
+                            datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#f6e05e','#48bb78','#f56565','#667eea','#ed8936'] }]
+                        },
+                        options: { responsive:true }
+                    });
                 }
-            }
-        });
+            });
+        },
 
-        // Load Alpine.js AFTER erpApp is defined
-        const { default: Alpine } = await import('https://cdn.jsdelivr.net/npm/alpinejs@3/dist/module.esm.js');
-        window.Alpine = Alpine;
-        Alpine.start();
-    </script>
+        // ===== PERMISSIONS =====
+        canEdit() { return this.user.isCEO || this.user.isAdmin; },
+        canDelete() { return this.user.isCEO; },
+
+        // ===== UTILS =====
+        getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2);
+        },
+
+        statusText(s) {
+            const map = { pending:'\u0645\u0639\u0644\u0651\u0642', approved:'\u0645\u0648\u0627\u0641\u0642', rejected:'\u0645\u0631\u0641\u0648\u0636', forwarded:'\u0645\u062d\u0648\u0651\u0644', urgent:'\u0639\u0627\u062c\u0644' };
+            return map[s] || s;
+        },
+
+        formatDate(d) {
+            if (!d) return '';
+            return new Date(d).toLocaleDateString('ar-SA');
+        },
+
+        showNotif(type, icon, message) {
+            this.notif = { show:true, type, icon, message };
+            setTimeout(() => this.notif.show = false, 3000);
+        }
+    };
+}
+</script>
 </body>
 </html>

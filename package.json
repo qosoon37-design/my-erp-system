@@ -1,6 +1,6 @@
 {
     "name": "my-erp-system",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "نظام إدارة المؤسسات - Enterprise Resource Planning System",
     "main": "index.html",
     "scripts": {
@@ -8,8 +8,5 @@
         "start": "npx serve ."
     },
     "keywords": ["erp", "management", "enterprise"],
-    "license": "MIT",
-    "dependencies": {
-        "@supabase/supabase-js": "^2.0.0"
-    }
+    "license": "MIT"
 }
