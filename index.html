@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <!-- ========== Performance Settings ========== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المؤسسات</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://your-project.supabase.co">
+    <link rel="dns-prefetch" href="https://your-project.supabase.co">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body x-data="erpApp()" x-init="init()" @click="closeDropdowns($event)">
+
+    <!-- ========== LOGIN SCREEN ========== -->
+    <div class="login-screen" :class="{ 'hidden': auth }">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>🏢 نظام إدارة المؤسسات</h1>
+                <p>Enterprise Resource Planning System v2.0</p>
+            </div>
+
+            <form @submit.prevent="handleLogin()">
+                <div class="form-group">
+                    <label for="username">👤 اسم المستخدم</label>
+                    <input 
+                        type="text" 
+                        id="username"
+                        class="form-control" 
+                        x-model="loginForm.username"
+                        placeholder="مثال: abdullah.saleh"
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">🔒 كلمة المرور</label>
+                    <input 
+                        type="password" 
+                        id="password"
+                        class="form-control" 
+                        x-model="loginForm.password"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="dept">🏢 القسم / الفرع</label>
+                    <select id="dept" class="form-control" x-model="loginForm.department" required>
+                        <option value="">-- اختر --</option>
+                        <option value="ceo">👑 المدير العام</option>
+                        <option value="admin">⚙️ الإدارة المركزية</option>
+                        <option value="warehouse">📦 المستودع الرئيسي</option>
+                        <template x-for="branch in branches" :key="branch.id">
+                            <option :value="branch.id" x-text="'🌿 ' + branch.name"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" :disabled="loginLoading">
+                    <span x-show="!loginLoading">🔐 تسجيل الدخول</span>
+                    <span x-show="loginLoading">⏳ جاري الدخول...</span>
+                </button>
+            </form>
+
+            <div style="margin-top: 1.5rem; text-align: center; font-size: 0.8rem; color: var(--gray);">
+                <p>🔒 نظام آمن ومحمي | SSL مشفر</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP ========== -->
+    <div class="app-container" :class="{ 'active': auth }">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="user-info">
+                <div class="user-avatar" x-text="user.initials"></div>
+                <div class="user-details">
+                    <h3 x-text="user.name"></h3>
+                    <p x-text="user.role + ' | ' + user.department"></p>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <!-- CEO Button -->
+                <div style="position: relative;" x-show="user.isCEO" @click.stop="toggleCEO()">
+                    <button class="ceo-btn">
+                        <span>👑</span>
+                        <span>لوحة التحكم</span>
+                        <span class="ceo-badge" x-show="unreadCEOCount > 0" x-text="unreadCEOCount"></span>
+                    </button>
+
+                    <!-- CEO Dropdown -->
+                    <div class="ceo-dropdown" :class="{ 'active': ceoOpen }" @click.stop>
+                        <div class="dropdown-header">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>📋 جميع الطلبات</span>
+                                <button @click="ceoOpen = false" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">✕</button>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div style="padding: 0.75rem; background: var(--light); display: flex; gap: 0.5rem;">
+                            <button 
+                                @click="filterCEO('all')"
+                                class="btn btn-sm"
+                                :class="ceoFilter === 'all' ? 'btn-primary' : 'btn-secondary'"
+                                style="flex: 1;"
+                            >الكل</button>
+                            <button 
+                                @click="filterCEO('pending')"
+                                class="btn btn-sm"
+                                :class="ceoFilter === 'pending' ? 'btn-primary' : 'btn-secondary'"
+                                style="flex: 1;"
+                            >معلّقة</button>
+                            <button 
+                                @click="filterCEO('urgent')"
+                                class="btn btn-sm"
+                                :class="ceoFilter === 'urgent' ? 'btn-primary' : 'btn-secondary'"
+                                style="flex: 1;"
+                            >عاجلة</button>
+                        </div>
+
+                        <!-- Requests List -->
+                        <template x-for="req in filteredCEORequests" :key="req.id">
+                            <div 
+                                class="request-item" 
+                                :class="{ 'unread': !req.read }"
+                                @click="viewRequest(req)"
+                            >
+                                <div class="request-title" x-text="req.title"></div>
+                                <div class="request-meta">
+                                    <span>من: <strong x-text="req.from"></strong></span>
+                                    <span x-text="req.date"></span>
+                                    <span class="status-badge" :class="'status-' + req.status" x-text="req.statusText"></span>
+                                </div>
+                                <div x-show="req.forwarded" style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--primary);">
+                                    ↪ محوّل من: <span x-text="req.originalBranch"></span>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="filteredCEORequests.length === 0" style="padding: 2rem; text-align: center; color: var(--gray);">
+                            لا توجد طلبات
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logout -->
+                <button class="btn btn-secondary" @click="logout()" style="width: auto; padding: 0.625rem 1rem;">
+                    <span>🚪</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            
+            <!-- Sidebar -->
+            <nav class="sidebar">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a class="nav-link" :class="{ 'active': page === 'dashboard' }" @click="page = 'dashboard'">
+                            <span>📊</span>
+                            <span>لوحة التحكم</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" x-show="canAccess('branches')">
+                        <a class="nav-link" :class="{ 'active': page === 'branches' }" @click="page = 'branches'">
+                            <span>🌿</span>
+                            <span>الفروع</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" x-show="canAccess('requests')">
+                        <a class="nav-link" :class="{ 'active': page === 'requests' }" @click="page = 'requests'">
+                            <span>📝</span>
+                            <span>الطلبات</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" x-show="user.isCEO">
+                        <a class="nav-link" :class="{ 'active': page === 'reports' }" @click="page = 'reports'">
+                            <span>📈</span>
+                            <span>التقارير</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Content -->
+            <main class="content-area">
+                
+                <!-- Dashboard -->
+                <div x-show="page === 'dashboard'">
+                    <h2 class="page-title">📊 لوحة التحكم</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card blue">
+                            <div class="stat-value" x-text="stats.employees">0</div>
+                            <div class="stat-label">الموظفين</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-value" x-text="stats.active">0</div>
+                            <div class="stat-label">طلبات نشطة</div>
+                        </div>
+                        <div class="stat-card orange">
+                            <div class="stat-value" x-text="stats.pending">0</div>
+                            <div class="stat-label">بانتظار الموافقة</div>
+                        </div>
+                        <div class="stat-card red">
+                            <div class="stat-value" x-text="stats.urgent">0</div>
+                            <div class="stat-label">عاجلة</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branches -->
+                <div x-show="page === 'branches'">
+                    <h2 class="page-title">🌿 إدارة الفروع</h2>
+                    
+                    <div class="branches-container">
+                        <template x-for="(branch, idx) in branches" :key="branch.id">
+                            <div 
+                                class="branch-panel" 
+                                :class="{ 'active': activeBranch === idx }"
+                                @click="setActiveBranch(idx)"
+                            >
+                                <div class="branch-title">
+                                    <span x-text="branch.name"></span>
+                                    <span x-show="activeBranch === idx" style="font-size: 0.75rem; opacity: 0.7;">
+                                        (<span x-text="branch.employees?.length || 0"></span> موظف)
+                                    </span>
+                                </div>
+
+                                <div class="branch-content" x-show="activeBranch === idx">
+                                    <div class="emp-list">
+                                        <template x-for="emp in branch.employees" :key="emp.id">
+                                            <div class="emp-card">
+                                                <div class="emp-info">
+                                                    <div class="emp-avatar" x-text="emp.initials"></div>
+                                                    <div>
+                                                        <div class="emp-name" x-text="emp.name"></div>
+                                                        <div class="emp-role" x-text="emp.role"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="emp-actions">
+                                                    <button class="action-btn info" @click.stop="viewEmp(emp)" title="عرض">👁</button>
+                                                    <button class="action-btn edit" @click.stop="editEmp(emp)" title="تعديل" x-show="canEdit(emp)">✏️</button>
+                                                    <button class="action-btn delete" @click.stop="deleteEmp(emp)" title="حذف" x-show="canDelete(emp)">🗑</button>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <button 
+                                        class="btn btn-primary" 
+                                        style="margin-top: auto;"
+                                        @click="addEmp(branch)"
+                                        x-show="user.isCEO || user.isAdmin"
+                                    >
+                                        <span>+</span> إضافة موظف
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Requests -->
+                <div x-show="page === 'requests'">
+                    <h2 class="page-title">📝 إدارة الطلبات</h2>
+                    
+                    <div style="margin-bottom: 1rem; display: flex; gap: 0.75rem;">
+                        <button class="btn btn-primary btn-sm" @click="createRequest()">
+                            <span>+</span> طلب جديد
+                        </button>
+                    </div>
+
+                    <div style="background: var(--light); border-radius: 0.75rem; overflow: hidden;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: var(--dark); color: white;">
+                                    <th style="padding: 0.875rem; text-align: right;">الطلب</th>
+                                    <th style="padding: 0.875rem; text-align: right;">المرسل</th>
+                                    <th style="padding: 0.875rem; text-align: right;">الحالة</th>
+                                    <th style="padding: 0.875rem; text-align: right;">إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="req in myRequests" :key="req.id">
+                                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 0.875rem;">
+                                            <div style="font-weight: 600;" x-text="req.title"></div>
+                                            <div style="font-size: 0.8rem; color: var(--gray);" x-text="req.date"></div>
+                                        </td>
+                                        <td style="padding: 0.875rem;" x-text="req.from"></td>
+                                        <td style="padding: 0.875rem;">
+                                            <span class="status-badge" :class="'status-' + req.status" x-text="req.statusText"></span>
+                                        </td>
+                                        <td style="padding: 0.875rem;">
+                                            <button class="btn btn-primary btn-sm" @click="viewRequest(req)">عرض</button>
+                                            <button 
+                                                class="btn btn-sm" 
+                                                style="background: var(--warning);"
+                                                @click="openForward(req)"
+                                                x-show="canForward(req)"
+                                            >
+                                                ↪ تحويل
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ========== FORWARD MODAL ========== -->
+    <div class="modal-overlay" :class="{ 'active': forwardModal }" @click="forwardModal = false">
+        <div class="modal" @click.stop>
+            <div class="modal-header">
+                <h3>↪ تحويل الطلب</h3>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem; color: var(--gray);">
+                    الطلب: <strong x-text="forwardingRequest?.title"></strong>
+                </p>
+
+                <div class="form-group">
+                    <label>تحويل إلى:</label>
+                    <div class="forward-options">
+                        <label class="forward-option" :class="{ 'selected': forwardTarget === 'ceo' }">
+                            <input type="radio" value="ceo" x-model="forwardTarget">
+                            <div>
+                                <div style="font-weight: 600;">👑 المدير العام</div>
+                                <div style="font-size: 0.8rem; color: var(--gray);">للطلبات الاستراتيجية</div>
+                            </div>
+                        </label>
+                        <template x-for="b in branches" :key="b.id">
+                            <label class="forward-option" :class="{ 'selected': forwardTarget === b.id }">
+                                <input type="radio" :value="b.id" x-model="forwardTarget">
+                                <div>
+                                    <div style="font-weight: 600;" x-text="b.name"></div>
+                                    <div style="font-size: 0.8rem; color: var(--gray);">
+                                        <span x-text="b.employees?.length || 0"></span> موظف
+                                    </div>
+                                </div>
+                            </label>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>ملاحظات التحويل:</label>
+                    <textarea 
+                        class="form-control" 
+                        x-model="forwardNote"
+                        placeholder="سبب التحويل أو أي توضيح..."
+                        style="min-height: 100px; resize: vertical;"
+                    ></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-sm" @click="confirmForward()">✓ تأكيد التحويل</button>
+                <button class="btn btn-secondary btn-sm" @click="forwardModal = false">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NOTIFICATION ========== -->
+    <div class="notification" :class="{ 'show': notification.show, [notification.type]: true }">
+        <span x-text="notification.icon">✓</span>
+        <span x-text="notification.message"></span>
+    </div>
+
+    <!-- ========== DEV ACCESS (Hidden) ========== -->
+    <button class="dev-trigger" @click="devLogin()"></button>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script type="module">
+        // Import modules
+        import { getSupabase } from './src/db.js';
+        import { handleLogin as authLogin, canAccess as authCanAccess, canEdit as authCanEdit, canDelete as authCanDelete, canForward as authCanForward } from './src/auth.js';
+        import { getDefaultBranches, loadDemoEmployees, addEmployee, deleteEmployee } from './src/components/branches.js';
+        import { getDemoCEORequests, getDemoMyRequests, createRequest as createNewRequest, forwardRequest, filterRequests } from './src/components/requests.js';
+
+        // ===== Main App =====
+        window.erpApp = () => ({
+            // State
+            auth: false,
+            page: 'dashboard',
+            activeBranch: 0,
+            ceoOpen: false,
+            ceoFilter: 'all',
+            forwardModal: false,
+            loginLoading: false,
+            
+            // User
+            user: {
+                name: '',
+                initials: '',
+                role: '',
+                department: '',
+                isCEO: false,
+                isAdmin: false
+            },
+            
+            // Forms
+            loginForm: {
+                username: '',
+                password: '',
+                department: ''
+            },
+            forwardTarget: '',
+            forwardNote: '',
+            forwardingRequest: null,
+            
+            // Data
+            branches: getDefaultBranches(),
+            ceoRequests: [],
+            myRequests: [],
+            
+            stats: {
+                employees: 0,
+                active: 0,
+                pending: 0,
+                urgent: 0
+            },
+            
+            notification: {
+                show: false,
+                type: 'success',
+                icon: '✓',
+                message: ''
+            },
+
+            // ===== INIT =====
+            async init() {
+                this.branches = loadDemoEmployees(this.branches);
+                this.ceoRequests = getDemoCEORequests();
+                this.myRequests = getDemoMyRequests();
+                this.updateStats();
+            },
+
+            // ===== AUTH =====
+            async handleLogin() {
+                this.loginLoading = true;
+                
+                const userData = await authLogin(
+                    this.loginForm.username, 
+                    this.loginForm.password, 
+                    this.loginForm.department, 
+                    this.branches
+                );
+                
+                this.user = userData;
+                this.auth = true;
+                this.loginLoading = false;
+                this.showNotif('success', '✓', `مرحباً ${this.user.name}`);
+            },
+
+            logout() {
+                this.auth = false;
+                this.user = {};
+                this.page = 'dashboard';
+                this.ceoOpen = false;
+            },
+
+            // ===== NAVIGATION =====
+            setActiveBranch(idx) {
+                this.activeBranch = idx;
+            },
+
+            closeDropdowns(e) {
+                if (!e.target.closest('.ceo-btn') && !e.target.closest('.ceo-dropdown')) {
+                    this.ceoOpen = false;
+                }
+            },
+
+            // ===== CEO =====
+            toggleCEO() {
+                this.ceoOpen = !this.ceoOpen;
+            },
+
+            get filteredCEORequests() {
+                return filterRequests(this.ceoRequests, this.ceoFilter);
+            },
+
+            get unreadCEOCount() {
+                return this.ceoRequests.filter(r => !r.read).length;
+            },
+
+            filterCEO(type) {
+                this.ceoFilter = type;
+            },
+
+            // ===== PERMISSIONS =====
+            canAccess(page) {
+                return authCanAccess(this.user, page);
+            },
+
+            canEdit(emp) {
+                return authCanEdit(this.user);
+            },
+
+            canDelete(emp) {
+                return authCanDelete(this.user);
+            },
+
+            canForward(req) {
+                return authCanForward(this.user, req);
+            },
+
+            // ===== EMPLOYEES =====
+            viewEmp(emp) {
+                this.showNotif('info', '👁', `عرض: ${emp.name}`);
+            },
+
+            editEmp(emp) {
+                const newRole = prompt('المسمى الجديد:', emp.role);
+                if (newRole) emp.role = newRole;
+            },
+
+            deleteEmp(emp) {
+                if (!confirm(`حذف ${emp.name}؟`)) return;
+                const branch = this.branches[this.activeBranch];
+                deleteEmployee(branch, emp.id);
+                this.updateStats();
+                this.showNotif('success', '🗑', 'تم الحذف');
+            },
+
+            addEmp(branch) {
+                const name = prompt('اسم الموظف:');
+                if (!name) return;
+                const role = prompt('المسمى:', 'موظف') || 'موظف';
+                
+                addEmployee(branch, name, role);
+                this.updateStats();
+                this.showNotif('success', '✓', 'تمت الإضافة');
+            },
+
+            // ===== REQUESTS =====
+            createRequest() {
+                const title = prompt('عنوان الطلب:');
+                if (!title) return;
+                
+                this.myRequests.push(createNewRequest(title, this.user.name));
+                this.showNotif('success', '✓', 'تم إرسال الطلب');
+            },
+
+            viewRequest(req) {
+                req.read = true;
+                alert(`${req.title}\nالحالة: ${req.statusText}\n${req.forwarded ? `محوّل من: ${req.originalBranch}` : ''}`);
+            },
+
+            openForward(req) {
+                this.forwardingRequest = req;
+                this.forwardModal = true;
+                this.forwardTarget = '';
+                this.forwardNote = '';
+            },
+
+            confirmForward() {
+                if (!this.forwardTarget) {
+                    alert('اختر الجهة المحول إليها');
+                    return;
+                }
+
+                forwardRequest(
+                    this.forwardingRequest, 
+                    this.forwardTarget, 
+                    this.forwardNote, 
+                    this.user.name, 
+                    this.user.department, 
+                    this.branches
+                );
+
+                if (this.forwardTarget === 'ceo') {
+                    this.ceoRequests.unshift({
+                        ...this.forwardingRequest,
+                        id: Date.now(),
+                        date: new Date().toISOString().split('T')[0],
+                        read: false
+                    });
+                }
+
+                this.forwardModal = false;
+                this.showNotif('success', '↪', 'تم التحويل بنجاح');
+            },
+
+            // ===== UTILS =====
+            updateStats() {
+                this.stats.employees = this.branches.reduce((sum, b) => sum + (b.employees?.length || 0), 0);
+                this.stats.active = this.myRequests.filter(r => r.status === 'pending').length;
+                this.stats.pending = this.ceoRequests.filter(r => r.status === 'pending').length;
+                this.stats.urgent = this.ceoRequests.filter(r => r.status === 'urgent').length;
+            },
+
+            showNotif(type, icon, message) {
+                this.notification = { show: true, type, icon, message };
+                setTimeout(() => this.notification.show = false, 3000);
+            },
+
+            devLogin() {
+                const pass = prompt('كلمة مرور المطور:');
+                if (pass === 'Dev@2024!') {
+                    this.user.isCEO = true;
+                    this.showNotif('success', '⚡', 'وضع المطور مفعل');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
