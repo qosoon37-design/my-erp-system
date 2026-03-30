@@ -299,7 +299,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
                 </div>
             </div>
             <div style="display:flex;align-items:center;gap:.75rem;">
-                <div style="position:relative;" x-show="user.isCEO" @click.stop="ceoOpen=!ceoOpen">
+                <div style="position:relative;" @click.stop="ceoOpen=!ceoOpen">
                     <button class="ceo-btn">
                         <span>&#128081;</span><span>لوحة الطلبات</span>
                         <span class="ceo-badge" x-show="unreadCount>0" x-text="unreadCount"></span>
@@ -343,7 +343,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
                     <li class="nav-item"><a class="nav-link" :class="{'active':page==='dashboard'}" @click="goTo('dashboard')">&#128202; لوحة التحكم</a></li>
                     <li class="nav-item"><a class="nav-link" :class="{'active':page==='branches'}" @click="goTo('branches')">&#127807; الفروع</a></li>
                     <li class="nav-item"><a class="nav-link" :class="{'active':page==='requests'}" @click="goTo('requests')">&#128221; الطلبات</a></li>
-                    <li class="nav-item" x-show="user.isCEO"><a class="nav-link" :class="{'active':page==='reports'}" @click="goTo('reports')">&#128200; التقارير</a></li>
+                    <li class="nav-item"><a class="nav-link" :class="{'active':page==='reports'}" @click="goTo('reports')">&#128200; التقارير</a></li>
                     <li class="nav-item"><a class="nav-link" :class="{'active':page==='orgchart'}" @click="goTo('orgchart')">&#127963; الهيكل التنظيمي</a></li>
                 </ul>
             </nav>
@@ -400,15 +400,15 @@ textarea.form-control { resize:vertical; min-height:80px; }
                                                 </div>
                                                 <div class="emp-actions">
                                                     <button class="action-btn info" @click.stop="viewEmp(emp)" title="عرض">&#128065;</button>
-                                                    <button class="action-btn edit" @click.stop="openEditEmp(emp,branch)" title="تعديل" x-show="canEdit()">&#9998;</button>
-                                                    <button class="action-btn" style="background:var(--warning);" @click.stop="openTransferEmp(emp,branch)" title="نقل لفرع آخر" x-show="canEdit()">&#8644;</button>
-                                                    <button class="action-btn delete" @click.stop="openDeleteEmp(emp,branch)" title="حذف" x-show="canDelete()">&#128465;</button>
+                                                    <button class="action-btn edit" @click.stop="openEditEmp(emp,branch)" title="تعديل">&#9998;</button>
+                                                    <button class="action-btn" style="background:var(--warning);" @click.stop="openTransferEmp(emp,branch)" title="نقل لفرع آخر">&#8644;</button>
+                                                    <button class="action-btn delete" @click.stop="openDeleteEmp(emp,branch)" title="حذف">&#128465;</button>
                                                 </div>
                                             </div>
                                         </template>
                                         <div x-show="!branch.employees||branch.employees.length===0" style="padding:2rem;text-align:center;color:var(--gray);">لا يوجد موظفين في هذا الفرع</div>
                                     </div>
-                                    <button class="btn btn-primary btn-sm" style="margin-top:auto;" @click.stop="openAddEmp(branch)" x-show="canEdit()">+ إضافة موظف</button>
+                                    <button class="btn btn-primary btn-sm" style="margin-top:auto;" @click.stop="openAddEmp(branch)">+ إضافة موظف</button>
                                 </div>
                             </div>
                         </template>
@@ -437,9 +437,9 @@ textarea.form-control { resize:vertical; min-height:80px; }
                                         <td>
                                             <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
                                                 <button class="btn btn-primary btn-sm" @click="openRequestDetail(req)">عرض</button>
-                                                <button class="btn btn-sm" style="background:var(--warning);color:white;" @click="openForward(req)" x-show="canForward(req)">&#8618; تحويل</button>
-                                                <button class="btn btn-success btn-sm" @click="updateReqStatus(req,'approved')" x-show="user.isCEO && req.status==='pending'">&#10004; موافقة</button>
-                                                <button class="btn btn-danger btn-sm" @click="updateReqStatus(req,'rejected')" x-show="user.isCEO && req.status==='pending'">&#10008; رفض</button>
+                                                <button class="btn btn-sm" style="background:var(--warning);color:white;" @click="openForward(req)" x-show="req.status!=='approved' && req.status!=='rejected'">&#8618; تحويل</button>
+                                                <button class="btn btn-success btn-sm" @click="updateReqStatus(req,'approved')" x-show="req.status==='pending' || req.status==='urgent'">&#10004; موافقة</button>
+                                                <button class="btn btn-danger btn-sm" @click="updateReqStatus(req,'rejected')" x-show="req.status==='pending' || req.status==='urgent'">&#10008; رفض</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -1031,7 +1031,7 @@ function erpApp() {
         async openRequestDetail(req) {
             this.detailRequest = req;
             // Mark as read
-            if (!req.is_read && this.user.isCEO) {
+            if (!req.is_read) {
                 await sb.from('requests').update({ is_read: true }).eq('id', req.id);
                 req.is_read = true;
             }
@@ -1092,7 +1092,7 @@ function erpApp() {
         },
 
         canForward(req) {
-            return (this.user.isCEO || this.user.isAdmin) && req.status !== 'forwarded' && req.status !== 'approved' && req.status !== 'rejected';
+            return req.status !== 'approved' && req.status !== 'rejected';
         },
 
         // ===== CEO DROPDOWN =====
@@ -1163,8 +1163,8 @@ function erpApp() {
         },
 
         // ===== PERMISSIONS =====
-        canEdit() { return this.user.isCEO || this.user.isAdmin; },
-        canDelete() { return this.user.isCEO || this.user.isAdmin; },
+        canEdit() { return true; },
+        canDelete() { return true; },
 
         // ===== UTILS =====
         getInitials(name) {
