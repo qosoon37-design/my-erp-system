@@ -1,25 +1,17 @@
 // ===== Supabase Database Client =====
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// ملاحظة: Supabase غير مفعّل حالياً - النظام يعمل بالبيانات التجريبية
+// عند الجاهزية: أضف مفاتيح Supabase وفعّل الاستيراد
 
-// استبدل ببيانات مشروعك
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
 
 let supabaseInstance = null;
 
 export function getSupabase() {
-    if (supabaseInstance) return supabaseInstance;
-
-    supabaseInstance = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-        },
-        realtime: {
-            timeout: 20000,
-        }
-    });
-
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.warn('Supabase غير مُعَد - النظام يعمل في وضع تجريبي');
+        return null;
+    }
     return supabaseInstance;
 }
 

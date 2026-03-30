@@ -1,5 +1,4 @@
 // ===== Authentication Module =====
-import { getSupabase } from './db.js';
 
 // قائمة المستخدمين التجريبيين
 const demoUsers = {

@@ -391,7 +391,6 @@
     <!-- ========== JAVASCRIPT ========== -->
     <script type="module">
         // Import modules
-        import { getSupabase } from './src/db.js';
         import { handleLogin as authLogin, canAccess as authCanAccess, canEdit as authCanEdit, canDelete as authCanDelete, canForward as authCanForward } from './src/auth.js';
         import { getDefaultBranches, loadDemoEmployees, addEmployee, deleteEmployee } from './src/components/branches.js';
         import { getDemoCEORequests, getDemoMyRequests, createRequest as createNewRequest, forwardRequest, filterRequests } from './src/components/requests.js';
