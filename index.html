@@ -26,16 +26,15 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .btn-orange{background:#ed8936;color:#fff}
 .btn-gray{background:#e2e8f0;color:#333}
 .btn-gold{background:linear-gradient(135deg,#f6e05e,#d69e2e);color:#1a1a2e}
+.btn-teal{background:#38b2ac;color:#fff}
 .btn-sm{padding:.5rem .9rem;font-size:.85rem}
 .err-msg{color:#f56565;text-align:center;margin-top:.5rem;font-size:.9rem}
-/* Topbar */
 .topbar{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
 .topbar h1{font-size:1.2rem}
 .topbar-right{display:flex;align-items:center;gap:.75rem}
 .topbar-user{font-size:.9rem;opacity:.9}
 .btn-logout{background:rgba(255,255,255,.2);color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600}
 .btn-logout:hover{background:rgba(255,255,255,.35)}
-/* Notification Bell */
 .notif-wrap{position:relative}
 .notif-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;position:relative;transition:all .2s}
 .notif-btn:hover{background:rgba(255,255,255,.35)}
@@ -47,14 +46,12 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .notif-dropdown .dd-item:hover{background:#f8f9fa}
 .notif-dropdown .dd-item strong{display:block;font-size:.9rem;margin-bottom:.2rem}
 .notif-dropdown .dd-item small{color:#888}
-/* Tabs */
 .tabs{background:#fff;display:flex;gap:0;overflow-x:auto;box-shadow:0 2px 4px rgba(0,0,0,.05)}
 .tab{padding:1rem 1.5rem;cursor:pointer;font-weight:600;color:#888;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
 .tab:hover{color:#667eea}
 .tab.active{color:#667eea;border-bottom-color:#667eea}
-/* Main */
 .main{max-width:1200px;margin:1.5rem auto;padding:0 1rem}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
 .stat{padding:1.25rem;border-radius:12px;color:#fff;text-align:center}
 .stat .val{font-size:2rem;font-weight:800}
 .stat .lbl{font-size:.85rem;opacity:.9;margin-top:.25rem}
@@ -62,10 +59,11 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .bg2{background:linear-gradient(135deg,#48bb78,#38a169)}
 .bg3{background:linear-gradient(135deg,#ed8936,#dd6b20)}
 .bg4{background:linear-gradient(135deg,#f56565,#c53030)}
+.bg5{background:linear-gradient(135deg,#38b2ac,#2c7a7b)}
+.bg6{background:linear-gradient(135deg,#9f7aea,#805ad5)}
 .sec{background:#fff;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:1.5rem}
 .sec h3{font-size:1.1rem;margin-bottom:1rem;color:#1a1a2e;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
 .sec h3 .btns{display:flex;gap:.5rem;flex-wrap:wrap}
-/* Branch Grid */
 .branch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
 .branch-card{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:12px;padding:1.25rem;cursor:pointer;transition:all .2s;text-align:center;position:relative}
 .branch-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(102,126,234,.4)}
@@ -74,36 +72,39 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .branch-card h4{font-size:1rem;margin-bottom:.4rem}
 .branch-card .count{font-size:.85rem;opacity:.85}
 .branch-card .closed-label{position:absolute;top:8px;left:8px;background:#f56565;color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700}
-/* Emp */
-.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:1rem}
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-top:1rem}
 .emp-card{background:#f8f9fa;border-radius:10px;padding:1rem;display:flex;justify-content:space-between;align-items:center;border:1px solid #e8e8e8;transition:all .2s}
 .emp-card:hover{border-color:#667eea;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.emp-card.expiring{border-color:#ed8936;background:#fffaf0}
+.emp-card.expired{border-color:#f56565;background:#fff5f5}
 .emp-card .info h4{font-size:.95rem;color:#1a1a2e}
 .emp-card .info p{font-size:.8rem;color:#888}
-.emp-card .acts{display:flex;gap:.4rem}
+.emp-card .acts{display:flex;gap:.4rem;flex-wrap:wrap}
 .emp-card .acts button{width:32px;height:32px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .15s;display:flex;align-items:center;justify-content:center}
 .emp-card .acts button:hover{transform:scale(1.15)}
 .act-edit{background:#667eea;color:#fff}
 .act-transfer{background:#ed8936;color:#fff}
 .act-delete{background:#f56565;color:#fff}
-/* Requests */
-.req-table{width:100%;border-collapse:collapse}
-.req-table th{background:#1a1a2e;color:#fff;padding:.75rem;text-align:right;font-size:.85rem}
-.req-table td{padding:.75rem;border-bottom:1px solid #eee;font-size:.9rem}
-.req-table tr:hover{background:#f8f9fa}
+.act-view{background:#38b2ac;color:#fff}
+.act-linked{background:#48bb78;color:#fff;font-size:.7rem!important}
+.req-table,.payroll-table,.users-table{width:100%;border-collapse:collapse}
+.req-table th,.payroll-table th,.users-table th{background:#1a1a2e;color:#fff;padding:.75rem;text-align:right;font-size:.85rem}
+.req-table td,.payroll-table td,.users-table td{padding:.75rem;border-bottom:1px solid #eee;font-size:.9rem}
+.req-table tr:hover,.payroll-table tr:hover,.users-table tr:hover{background:#f8f9fa}
 .badge{display:inline-block;padding:.25rem .6rem;border-radius:20px;font-size:.75rem;font-weight:700}
 .badge-pending{background:#fef3c7;color:#92400e}
 .badge-approved{background:#d1fae5;color:#065f46}
 .badge-rejected{background:#fee2e2;color:#991b1b}
 .badge-forwarded{background:#e0e7ff;color:#3730a3}
 .badge-urgent{background:#fed7d7;color:#9b2c2c}
+.badge-expiring{background:#fef3c7;color:#92400e}
+.badge-expired{background:#fee2e2;color:#991b1b}
+.badge-ok{background:#d1fae5;color:#065f46}
 .req-acts{display:flex;gap:.4rem;flex-wrap:wrap}
 .req-acts .btn-sm{font-size:.8rem;padding:.4rem .7rem}
-/* Charts */
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
 .chart-wrap{background:#f8f9fa;border-radius:10px;padding:1rem}
 .chart-wrap h4{margin-bottom:.75rem;font-size:.95rem}
-/* Org */
 .org-tree{text-align:center;padding:2rem 1rem;overflow-x:auto}
 .org-top{display:inline-block;padding:.75rem 2rem;background:linear-gradient(135deg,#f6e05e,#d69e2e);border-radius:10px;font-weight:700;margin-bottom:.5rem}
 .org-mid{display:inline-block;padding:.6rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:10px;font-weight:600;margin-bottom:.5rem}
@@ -113,23 +114,16 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .org-bnode:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
 .org-bnode.closed{border-color:#a0aec0;opacity:.6}
 .org-bnode small{display:block;color:#888;font-size:.75rem}
-/* Users table */
-.users-table{width:100%;border-collapse:collapse}
-.users-table th{background:#1a1a2e;color:#fff;padding:.75rem;text-align:right;font-size:.85rem}
-.users-table td{padding:.75rem;border-bottom:1px solid #eee;font-size:.9rem}
-.users-table tr:hover{background:#f8f9fa}
 .role-select{padding:.4rem .6rem;border:2px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:.85rem;cursor:pointer}
 .role-select:focus{outline:none;border-color:#667eea}
-/* Modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:5000;padding:1rem}
 .modal-bg.open{display:flex}
-.modal-box{background:#fff;border-radius:16px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto}
+.modal-box{background:#fff;border-radius:16px;width:100%;max-width:550px;max-height:85vh;overflow-y:auto}
 .modal-head{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:1rem 1.25rem;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center}
 .modal-head h3{font-size:1rem}
 .modal-close{background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer}
 .modal-body{padding:1.25rem}
 .modal-foot{padding:1rem 1.25rem;border-top:1px solid #eee;display:flex;gap:.75rem;justify-content:flex-end}
-/* Detail sections */
 .detail-row{padding:.5rem 0;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between}
 .detail-row:last-child{border-bottom:none}
 .detail-label{color:#888;font-size:.85rem}
@@ -138,22 +132,56 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .fwd-log h4{margin-bottom:.5rem;font-size:.9rem;color:#667eea}
 .fwd-entry{padding:.5rem;border-bottom:1px solid #eee;font-size:.85rem}
 .fwd-entry:last-child{border-bottom:none}
-/* Toast */
 .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-80px);background:#fff;padding:.75rem 1.5rem;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.15);z-index:9999;transition:transform .3s;font-weight:600;display:flex;align-items:center;gap:.5rem}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.ok{border-right:4px solid #48bb78}
 .toast.err{border-right:4px solid #f56565}
-/* Role badges */
 .role-badge{display:inline-block;padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:700}
 .role-ceo{background:#fef3c7;color:#92400e}
 .role-admin{background:#e0e7ff;color:#3730a3}
 .role-employee{background:#e2e8f0;color:#4a5568}
+/* Month navigator */
+.month-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.month-nav button{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;transition:all .2s}
+.month-nav button:hover{transform:scale(1.1)}
+.month-nav span{font-size:1.1rem;font-weight:700;min-width:140px;text-align:center}
+/* Checkbox toggle */
+.toggle-wrap{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;padding:.75rem;background:#f0f2f5;border-radius:10px}
+.toggle-wrap input[type=checkbox]{width:18px;height:18px;accent-color:#667eea}
+.toggle-wrap label{font-weight:600;font-size:.9rem;cursor:pointer}
+.account-fields{display:none;margin-top:.5rem;padding:1rem;background:#eef2ff;border-radius:10px;border:2px solid #667eea}
+.account-fields.show{display:block}
+/* Profile card */
+.profile-header{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.profile-card{background:#f8f9fa;border-radius:12px;padding:1.25rem;border:1px solid #e8e8e8}
+.profile-card h4{font-size:.9rem;color:#667eea;margin-bottom:.75rem}
+.profile-card .prow{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #eee;font-size:.9rem}
+.profile-card .prow:last-child{border-bottom:none}
+.profile-card .prow .plbl{color:#888}
+.profile-card .prow .pval{font-weight:600}
+/* Vacation balance bar */
+.vac-bar-wrap{margin-top:.75rem}
+.vac-bar{height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden}
+.vac-bar-fill{height:100%;background:linear-gradient(135deg,#48bb78,#38a169);border-radius:6px;transition:width .3s}
+.vac-bar-text{display:flex;justify-content:space-between;font-size:.8rem;color:#888;margin-top:.3rem}
+/* Detail section in modal */
+.detail-sec{margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:10px}
+.detail-sec h4{margin-bottom:.5rem;font-size:.9rem;color:#667eea;display:flex;justify-content:space-between;align-items:center}
+.mini-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.mini-table th{background:#e2e8f0;padding:.5rem;text-align:right;font-weight:600}
+.mini-table td{padding:.5rem;border-bottom:1px solid #eee}
+/* Net salary highlight */
+.net-display{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:1rem;border-radius:10px;text-align:center;margin-top:1rem}
+.net-display .net-val{font-size:1.5rem;font-weight:800}
+.net-display .net-lbl{font-size:.85rem;opacity:.9}
 @media(max-width:768px){
 .topbar{padding:.75rem 1rem}.topbar h1{font-size:1rem}
 .tab{padding:.75rem 1rem;font-size:.85rem}
 .charts-row{grid-template-columns:1fr}
 .branch-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .notif-dropdown{width:280px;left:-100px}
+.profile-header{grid-template-columns:1fr}
+.emp-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -173,7 +201,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div id="loginScreen" class="fullscreen" style="display:none">
 <div class="card-box">
 <h2>&#127970; نظام إدارة المؤسسات</h2>
-<p class="sub">ERP System v3.0</p>
+<p class="sub">ERP System v4.0</p>
 <div class="field"><label>البريد الإلكتروني</label><input id="lEmail" type="email" placeholder="user@company.com" dir="ltr"></div>
 <div class="field"><label>كلمة المرور</label><input id="lPass" type="password" placeholder="••••••••"></div>
 <div id="loginErr" class="err-msg" style="display:none"></div>
@@ -204,9 +232,11 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">&#128202; لوحة التحكم</div>
 <div class="tab" data-tab="branches" onclick="switchTab('branches')">&#127807; الفروع والموظفين</div>
 <div class="tab" data-tab="requests" onclick="switchTab('requests')">&#128221; الطلبات</div>
+<div class="tab" data-tab="salaries" onclick="switchTab('salaries')" id="tabSalaries" style="display:none">&#128176; الرواتب</div>
 <div class="tab" data-tab="reports" onclick="switchTab('reports')">&#128200; التقارير</div>
 <div class="tab" data-tab="orgchart" onclick="switchTab('orgchart')">&#127963; الهيكل التنظيمي</div>
 <div class="tab" data-tab="users" onclick="switchTab('users')" id="tabUsers" style="display:none">&#128101; المستخدمين</div>
+<div class="tab" data-tab="myprofile" onclick="switchTab('myprofile')" id="tabMyProfile" style="display:none">&#128100; ملفي</div>
 </div>
 <div class="main">
 
@@ -216,6 +246,8 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="stat bg2"><div class="val" id="stActive">0</div><div class="lbl">طلبات نشطة</div></div>
 <div class="stat bg3"><div class="val" id="stPending">0</div><div class="lbl">بانتظار الموافقة</div></div>
 <div class="stat bg4"><div class="val" id="stUrgent">0</div><div class="lbl">عاجلة</div></div>
+<div class="stat bg5" id="stExpiringWrap" style="display:none"><div class="val" id="stExpiring">0</div><div class="lbl">إقامات قاربت</div></div>
+<div class="stat bg4" id="stExpiredWrap" style="display:none"><div class="val" id="stExpired">0</div><div class="lbl">إقامات منتهية</div></div>
 </div>
 <div class="sec"><h3>آخر النشاطات</h3><div id="recentList" style="color:#888;text-align:center;padding:1rem">جاري التحميل...</div></div>
 </div>
@@ -249,6 +281,25 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 </div>
 </div>
 
+<div id="page-salaries" style="display:none">
+<div class="month-nav">
+<button onclick="changePayrollMonth(-1)">&#9664;</button>
+<span id="payrollMonthLabel">---</span>
+<button onclick="changePayrollMonth(1)">&#9654;</button>
+</div>
+<div class="stats-row">
+<div class="stat bg1"><div class="val" id="prTotal">0</div><div class="lbl">إجمالي الصافي</div></div>
+<div class="stat bg2"><div class="val" id="prPaid">0</div><div class="lbl">موظف مسجل</div></div>
+<div class="stat bg3"><div class="val" id="prBonus">0</div><div class="lbl">إجمالي البونص</div></div>
+<div class="stat bg4"><div class="val" id="prDed">0</div><div class="lbl">إجمالي الحسميات</div></div>
+</div>
+<div class="sec">
+<h3><span>كشف الرواتب</span><div class="btns"><button class="btn btn-main btn-sm" onclick="openAddPayroll()">+ تسجيل راتب</button></div></h3>
+<div style="overflow-x:auto"><table class="payroll-table"><thead><tr><th>الموظف</th><th>الفرع</th><th>الأساسي</th><th>البونص</th><th>الإضافي</th><th>الحسميات</th><th>الصافي</th><th>إجراءات</th></tr></thead><tbody id="payrollBody"></tbody></table></div>
+<div id="payrollEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا يوجد سجلات لهذا الشهر</div>
+</div>
+</div>
+
 <div id="page-reports" style="display:none">
 <div class="stats-row">
 <div class="stat bg1"><div class="val" id="rpTotal">0</div><div class="lbl">إجمالي الطلبات</div></div>
@@ -278,6 +329,29 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 </div>
 </div>
 
+<div id="page-myprofile" style="display:none">
+<div class="profile-header">
+<div class="profile-card">
+<h4>&#128100; المعلومات الشخصية</h4>
+<div id="myInfoCard">جاري التحميل...</div>
+</div>
+<div class="profile-card">
+<h4>&#128197; الإقامة والإجازات</h4>
+<div id="myResCard">جاري التحميل...</div>
+</div>
+</div>
+<div class="sec">
+<h3>&#128176; سجل الرواتب</h3>
+<div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>الشهر</th><th>الأساسي</th><th>البونص</th><th>الإضافي</th><th>الحسميات</th><th>الصافي</th></tr></thead><tbody id="mySalaryBody"></tbody></table></div>
+<div id="mySalaryEmpty" style="display:none;text-align:center;padding:1rem;color:#888">لا يوجد سجلات</div>
+</div>
+<div class="sec">
+<h3>&#127796; سجل الإجازات</h3>
+<div style="overflow-x:auto"><table class="mini-table"><thead><tr><th>من</th><th>إلى</th><th>الأيام</th><th>النوع</th><th>ملاحظات</th></tr></thead><tbody id="myVacBody"></tbody></table></div>
+<div id="myVacEmpty" style="display:none;text-align:center;padding:1rem;color:#888">لا يوجد إجازات</div>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -291,6 +365,16 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="field"><label>المسمى الوظيفي</label><input id="empRole" placeholder="مدير فرع"></div>
 <div class="field"><label>الهاتف</label><input id="empPhone" placeholder="05XXXXXXXX" dir="ltr"></div>
 <div class="field"><label>البريد</label><input id="empEmail" type="email" placeholder="user@co.com" dir="ltr"></div>
+<div class="field"><label>الراتب الأساسي</label><input id="empSalary" type="number" placeholder="0" dir="ltr"></div>
+<div class="field"><label>تاريخ انتهاء الإقامة</label><input id="empResExpiry" type="date" dir="ltr"></div>
+<div class="field"><label>أيام الإجازة السنوية</label><input id="empVacDays" type="number" value="21" dir="ltr"></div>
+<div id="accountSection" class="toggle-wrap" style="display:none">
+<input type="checkbox" id="empCreateAccount" onchange="toggleAccountFields()">
+<label for="empCreateAccount">إنشاء حساب دخول للموظف</label>
+</div>
+<div id="accountFields" class="account-fields">
+<div class="field"><label>كلمة المرور</label><input id="empPassword" type="password" placeholder="كلمة مرور الموظف (6 أحرف على الأقل)"></div>
+</div>
 </div>
 <div class="modal-foot"><button class="btn btn-main btn-sm" onclick="saveEmp()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('empModal')">إلغاء</button></div>
 </div>
@@ -359,12 +443,59 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 </div>
 </div>
 
+<!-- Employee Detail Modal -->
+<div class="modal-bg" id="empDetailModal">
+<div class="modal-box" style="max-width:600px">
+<div class="modal-head" style="background:linear-gradient(135deg,#38b2ac,#2c7a7b)"><h3 id="empDetailTitle">تفاصيل الموظف</h3><button class="modal-close" onclick="closeModal('empDetailModal')">&times;</button></div>
+<div class="modal-body" id="empDetailBody"></div>
+<div class="modal-foot"><button class="btn btn-gray btn-sm" onclick="closeModal('empDetailModal')">إغلاق</button></div>
+</div>
+</div>
+
+<!-- Vacation Modal -->
+<div class="modal-bg" id="vacModal">
+<div class="modal-box">
+<div class="modal-head" style="background:linear-gradient(135deg,#48bb78,#38a169)"><h3>تسجيل إجازة</h3><button class="modal-close" onclick="closeModal('vacModal')">&times;</button></div>
+<div class="modal-body">
+<input type="hidden" id="vacEmpId">
+<p style="margin-bottom:1rem">الموظف: <strong id="vacEmpName"></strong></p>
+<div class="field"><label>تاريخ البدء</label><input id="vacStart" type="date" dir="ltr" onchange="calcVacDays()"></div>
+<div class="field"><label>تاريخ الانتهاء</label><input id="vacEnd" type="date" dir="ltr" onchange="calcVacDays()"></div>
+<div class="field"><label>عدد الأيام</label><input id="vacDays" type="number" readonly dir="ltr" style="background:#f0f2f5"></div>
+<div class="field"><label>نوع الإجازة</label><select id="vacType"><option value="annual">سنوية</option><option value="sick">مرضية</option><option value="emergency">اضطرارية</option><option value="unpaid">بدون راتب</option></select></div>
+<div class="field"><label>ملاحظات</label><textarea id="vacNotes" placeholder="ملاحظات..."></textarea></div>
+</div>
+<div class="modal-foot"><button class="btn btn-green btn-sm" onclick="saveVacation()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('vacModal')">إلغاء</button></div>
+</div>
+</div>
+
+<!-- Payroll Modal -->
+<div class="modal-bg" id="payrollModal">
+<div class="modal-box">
+<div class="modal-head" style="background:linear-gradient(135deg,#9f7aea,#805ad5)"><h3>تسجيل راتب</h3><button class="modal-close" onclick="closeModal('payrollModal')">&times;</button></div>
+<div class="modal-body">
+<div class="field"><label>الموظف</label><select id="prEmp" onchange="prefillSalary()"><option value="">-- اختر الموظف --</option></select></div>
+<div class="field"><label>الشهر</label><select id="prMonth"></select></div>
+<div class="field"><label>السنة</label><input id="prYear" type="number" dir="ltr"></div>
+<div class="field"><label>الراتب الأساسي</label><input id="prBase" type="number" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>البونص</label><input id="prBonus" type="number" value="0" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>الأجر الإضافي</label><input id="prOvertime" type="number" value="0" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>الحسميات</label><input id="prDeductions" type="number" value="0" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>ملاحظات</label><textarea id="prNotes" placeholder="ملاحظات..."></textarea></div>
+<div class="net-display"><div class="net-lbl">الصافي</div><div class="net-val" id="prNetDisplay">0</div></div>
+</div>
+<div class="modal-foot"><button class="btn btn-main btn-sm" onclick="savePayroll()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('payrollModal')">إلغاء</button></div>
+</div>
+</div>
+
 <script>
-let sb=null,U=null,branches=[],selBranchId=null,selBranchIdx=-1,allReqs=[],delEmpId=null,trEmpId=null,fwdReqId=null,ch1=null,ch2=null;
+let sb=null,U=null,branches=[],selBranchId=null,selBranchIdx=-1,allReqs=[],allEmpsFlat=[],delEmpId=null,trEmpId=null,fwdReqId=null,ch1=null,ch2=null;
+let payrollMonth,payrollYear;
 function isManager(){return U&&(U.role==='ceo'||U.role==='admin');}
 function isCEO(){return U&&U.role==='ceo';}
 
 (async function(){
+    const now=new Date();payrollMonth=now.getMonth()+1;payrollYear=now.getFullYear();
     const c=getConfig();
     if(!c){$('setupScreen').style.display='flex';return;}
     sb=supabase.createClient(c.url,c.key);
@@ -397,17 +528,26 @@ async function doLogin(){
     $('loginBtn').disabled=false;
 }
 async function doLogout(){await sb.auth.signOut();U=null;$('app').style.display='none';$('loginScreen').style.display='flex';}
+
 async function loadUser(uid){
     const{data:p}=await sb.from('profiles').select('*, branches(name)').eq('id',uid).single();
     U=p?{id:p.id,name:p.full_name,role:p.role,roleName:p.role==='ceo'?'المدير العام':p.role==='admin'?'مدير الإدارة':'موظف',branchName:p.branches?.name||'الإدارة العليا',branch_id:p.branch_id}:{id:uid,name:'مستخدم',role:'employee',roleName:'موظف',branchName:'',branch_id:null};
+    // Check if this user has a linked employee record
+    const{data:emp}=await sb.from('employees').select('*').eq('user_id',uid).maybeSingle();
+    U.employee=emp||null;
+    U.employee_id=emp?.id||null;
 }
 
 function showApp(){
     $('setupScreen').style.display='none';$('loginScreen').style.display='none';$('loadingScreen').style.display='none';$('app').style.display='block';
     $('userName').textContent=U.name+' | '+U.roleName;
-    // Show admin features
-    if(isManager()){$('branchAdminBtns').style.display='flex';$('empAdminBtns').style.display='flex';}
+    if(isManager()){
+        $('branchAdminBtns').style.display='flex';
+        $('empAdminBtns').style.display='flex';
+        $('tabSalaries').style.display='block';
+    }
     if(isCEO()){$('tabUsers').style.display='block';}
+    if(U.employee){$('tabMyProfile').style.display='block';}
     loadAll();
 }
 async function loadAll(){await Promise.all([loadBranches(),loadRequests()]);updateStats();updateRecent();updateOrgChart();updateNotif();}
@@ -416,6 +556,7 @@ async function loadAll(){await Promise.all([loadBranches(),loadRequests()]);upda
 async function loadBranches(){
     const{data:b}=await sb.from('branches').select('*').order('code');
     const{data:e}=await sb.from('employees').select('*').order('created_at');
+    allEmpsFlat=e||[];
     branches=(b||[]).map(br=>({...br,employees:(e||[]).filter(em=>em.branch_id===br.id)}));
     renderBranches();
 }
@@ -434,7 +575,6 @@ function renderEmployees(branch){
     const closedTxt=branch.is_closed?' (مغلق)':'';
     let titleHtml=branch.name+' ('+branch.employees.length+' موظف)'+closedTxt;
     $('empSectionTitle').innerHTML=titleHtml;
-    // Show close/open button for managers
     if(isManager()){
         const btn=branch.is_closed
             ?'<button class="btn btn-green btn-sm" onclick="toggleBranch(\''+branch.id+'\',false)" style="margin-right:.5rem">&#9989; فتح الفرع</button>'
@@ -444,17 +584,35 @@ function renderEmployees(branch){
     const grid=$('empGrid');
     if(branch.employees.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#888">لا يوجد موظفين</div>';return;}
     grid.innerHTML=branch.employees.map(emp=>{
+        const resClass=getResidencyClass(emp);
+        const resBadge=getResidencyBadge(emp);
+        const hasAccount=emp.user_id?'<button class="act-linked" title="لديه حساب دخول">&#128100;</button>':'';
         const acts=isManager()?
-            '<button class="act-edit" onclick="openEditEmp(\''+emp.id+'\')" title="تعديل">&#9998;</button><button class="act-transfer" onclick="openTransfer(\''+emp.id+'\')" title="نقل">&#8644;</button><button class="act-delete" onclick="openDelete(\''+emp.id+'\',\''+esc(emp.name)+'\')" title="حذف">&#128465;</button>':'';
-        return '<div class="emp-card"><div class="info"><h4>'+emp.name+'</h4><p>'+emp.role_title+(emp.phone?' | '+emp.phone:'')+(emp.email?'<br>'+emp.email:'')+'</p></div><div class="acts">'+acts+'</div></div>';
+            '<button class="act-view" onclick="openEmpDetail(\''+emp.id+'\')" title="تفاصيل">&#128065;</button><button class="act-edit" onclick="openEditEmp(\''+emp.id+'\')" title="تعديل">&#9998;</button><button class="act-transfer" onclick="openTransfer(\''+emp.id+'\')" title="نقل">&#8644;</button><button class="act-delete" onclick="openDelete(\''+emp.id+'\',\''+esc(emp.name)+'\')" title="حذف">&#128465;</button>':
+            '<button class="act-view" onclick="openEmpDetail(\''+emp.id+'\')" title="تفاصيل">&#128065;</button>';
+        return '<div class="emp-card '+resClass+'"><div class="info"><h4>'+emp.name+' '+resBadge+'</h4><p>'+emp.role_title+(emp.phone?' | '+emp.phone:'')+(emp.base_salary?' | '+fmtNum(emp.base_salary)+' ر.س':'')+'</p></div><div class="acts">'+hasAccount+acts+'</div></div>';
     }).join('');
+}
+function getResidencyClass(emp){
+    if(!emp.residence_expiry)return '';
+    const days=Math.ceil((new Date(emp.residence_expiry)-new Date())/(1000*60*60*24));
+    if(days<0)return 'expired';
+    if(days<=30)return 'expiring';
+    return '';
+}
+function getResidencyBadge(emp){
+    if(!emp.residence_expiry)return '';
+    const days=Math.ceil((new Date(emp.residence_expiry)-new Date())/(1000*60*60*24));
+    if(days<0)return '<span class="badge badge-expired">إقامة منتهية</span>';
+    if(days<=30)return '<span class="badge badge-expiring">'+days+' يوم</span>';
+    return '';
 }
 async function toggleBranch(id,close){
     try{
         const{error}=await sb.from('branches').update({is_closed:close}).eq('id',id);
         if(error)throw error;
         toast(close?'تم إغلاق الفرع':'تم فتح الفرع','ok');
-        await loadBranches();selectBranch(selBranchIdx);
+        await loadBranches();if(selBranchIdx>=0)selectBranch(selBranchIdx);
     }catch(e){toast('خطأ: '+e.message,'err');}
 }
 function openAddBranch(){
@@ -471,28 +629,86 @@ async function saveBranch(){
 }
 
 // ====== EMPLOYEES ======
+function toggleAccountFields(){
+    $('accountFields').classList.toggle('show',$('empCreateAccount').checked);
+}
 function openAddEmp(){
     if(selBranchIdx<0){toast('اختر فرعاً أولاً','err');return;}
-    $('empModalTitle').textContent='إضافة موظف';$('empId').value='';$('empName').value='';$('empRole').value='موظف';$('empPhone').value='';$('empEmail').value='';
+    $('empModalTitle').textContent='إضافة موظف';
+    $('empId').value='';$('empName').value='';$('empRole').value='موظف';$('empPhone').value='';$('empEmail').value='';
+    $('empSalary').value='';$('empResExpiry').value='';$('empVacDays').value='21';
+    $('accountSection').style.display='flex';
+    $('empCreateAccount').checked=false;$('accountFields').classList.remove('show');$('empPassword').value='';
     openModal('empModal');
 }
 function openEditEmp(id){
     const emp=branches[selBranchIdx].employees.find(e=>e.id===id);if(!emp)return;
-    $('empModalTitle').textContent='تعديل موظف';$('empId').value=emp.id;$('empName').value=emp.name;$('empRole').value=emp.role_title;$('empPhone').value=emp.phone||'';$('empEmail').value=emp.email||'';
+    $('empModalTitle').textContent='تعديل موظف';$('empId').value=emp.id;
+    $('empName').value=emp.name;$('empRole').value=emp.role_title;$('empPhone').value=emp.phone||'';$('empEmail').value=emp.email||'';
+    $('empSalary').value=emp.base_salary||'';$('empResExpiry').value=emp.residence_expiry||'';$('empVacDays').value=emp.vacation_days_entitled||21;
+    $('accountSection').style.display=emp.user_id?'none':'flex';
+    $('empCreateAccount').checked=false;$('accountFields').classList.remove('show');$('empPassword').value='';
     openModal('empModal');
 }
 async function saveEmp(){
-    const id=$('empId').value,name=$('empName').value.trim(),role_title=$('empRole').value.trim()||'موظف',phone=$('empPhone').value.trim()||null,email=$('empEmail').value.trim()||null;
+    const id=$('empId').value;
+    const name=$('empName').value.trim();
+    const role_title=$('empRole').value.trim()||'موظف';
+    const phone=$('empPhone').value.trim()||null;
+    const email=$('empEmail').value.trim()||null;
+    const base_salary=parseFloat($('empSalary').value)||0;
+    const residence_expiry=$('empResExpiry').value||null;
+    const vacation_days_entitled=parseInt($('empVacDays').value)||21;
+    const createAccount=$('empCreateAccount').checked&&!id;
+    const password=$('empPassword').value;
+
     if(!name){toast('أدخل اسم الموظف','err');return;}
+    if(createAccount&&!email){toast('أدخل البريد لإنشاء الحساب','err');return;}
+    if(createAccount&&(!password||password.length<6)){toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل','err');return;}
+
     try{
-        if(id){const{error}=await sb.from('employees').update({name,role_title,phone,email}).eq('id',id);if(error)throw error;toast('تم التعديل','ok');}
-        else{const{error}=await sb.from('employees').insert({name,role_title,phone,email,branch_id:selBranchId});if(error)throw error;toast('تمت الإضافة','ok');}
-        closeModal('empModal');await loadBranches();selectBranch(selBranchIdx);updateStats();
+        if(id){
+            // Update existing employee
+            const{error}=await sb.from('employees').update({name,role_title,phone,email,base_salary,residence_expiry,vacation_days_entitled}).eq('id',id);
+            if(error)throw error;
+            toast('تم التعديل','ok');
+        } else {
+            // Insert new employee
+            const empData={name,role_title,phone,email,base_salary,residence_expiry,vacation_days_entitled,branch_id:selBranchId};
+            const{data:newEmp,error}=await sb.from('employees').insert(empData).select().single();
+            if(error)throw error;
+
+            // Create login account if requested
+            if(createAccount){
+                try{
+                    const c=getConfig();
+                    const tempSb=supabase.createClient(c.url,c.key,{auth:{persistSession:false,autoRefreshToken:false}});
+                    const{data:signData,error:signErr}=await tempSb.auth.signUp({
+                        email,password,
+                        options:{data:{full_name:name,branch_id:selBranchId,role:'employee'}}
+                    });
+                    if(signErr)throw signErr;
+                    if(signData.user){
+                        const{error:linkErr}=await sb.from('employees').update({user_id:signData.user.id}).eq('id',newEmp.id);
+                        if(linkErr)console.error('Link error:',linkErr);
+                        toast('تمت الإضافة وإنشاء الحساب','ok');
+                    } else {
+                        toast('تمت الإضافة (تحقق من البريد لتفعيل الحساب)','ok');
+                    }
+                }catch(accErr){
+                    console.error('Account creation error:',accErr);
+                    toast('تمت إضافة الموظف لكن فشل إنشاء الحساب: '+accErr.message,'err');
+                }
+            } else {
+                toast('تمت الإضافة','ok');
+            }
+        }
+        closeModal('empModal');await loadBranches();if(selBranchIdx>=0)selectBranch(selBranchIdx);updateStats();
     }catch(e){toast('خطأ: '+e.message,'err');}
 }
 function openDelete(id,name){delEmpId=id;$('delName').textContent=name;openModal('deleteModal');}
 async function doDelete(){
-    try{const{error}=await sb.from('employees').delete().eq('id',delEmpId);if(error)throw error;toast('تم الحذف','ok');closeModal('deleteModal');await loadBranches();selectBranch(selBranchIdx);updateStats();}
+    try{const{error}=await sb.from('employees').delete().eq('id',delEmpId);if(error)throw error;toast('تم الحذف','ok');closeModal('deleteModal');await loadBranches();if(selBranchIdx>=0)selectBranch(selBranchIdx);updateStats();}
     catch(e){toast('خطأ: '+e.message,'err');}
 }
 function openTransfer(id){
@@ -503,8 +719,236 @@ function openTransfer(id){
 }
 async function doTransfer(){
     const to=$('trTo').value;if(!to){toast('اختر الفرع','err');return;}
-    try{const{error}=await sb.from('employees').update({branch_id:to}).eq('id',trEmpId);if(error)throw error;toast('تم النقل','ok');closeModal('transferModal');await loadBranches();selectBranch(selBranchIdx);}
+    try{const{error}=await sb.from('employees').update({branch_id:to}).eq('id',trEmpId);if(error)throw error;toast('تم النقل','ok');closeModal('transferModal');await loadBranches();if(selBranchIdx>=0)selectBranch(selBranchIdx);}
     catch(e){toast('خطأ: '+e.message,'err');}
+}
+
+// ====== EMPLOYEE DETAIL ======
+async function openEmpDetail(empId){
+    const emp=allEmpsFlat.find(e=>e.id===empId);if(!emp)return;
+    const branch=branches.find(b=>b.id===emp.branch_id);
+    $('empDetailTitle').textContent=emp.name;
+
+    // Load vacations and payroll
+    const[vacRes,payRes]=await Promise.all([
+        sb.from('vacations').select('*').eq('employee_id',empId).order('start_date',{ascending:false}),
+        sb.from('payroll').select('*').eq('employee_id',empId).order('year',{ascending:false}).order('month',{ascending:false}).limit(6)
+    ]);
+    const vacs=vacRes.data||[];
+    const pays=payRes.data||[];
+    const thisYear=new Date().getFullYear();
+    const usedDays=vacs.filter(v=>new Date(v.start_date).getFullYear()===thisYear).reduce((s,v)=>s+v.days,0);
+    const entitled=emp.vacation_days_entitled||21;
+    const remaining=Math.max(0,entitled-usedDays);
+    const pct=entitled>0?Math.round(usedDays/entitled*100):0;
+
+    let html='';
+    // Info
+    html+='<div class="detail-row"><span class="detail-label">المسمى</span><span class="detail-value">'+emp.role_title+'</span></div>';
+    html+='<div class="detail-row"><span class="detail-label">الفرع</span><span class="detail-value">'+(branch?.name||'-')+'</span></div>';
+    if(emp.phone)html+='<div class="detail-row"><span class="detail-label">الهاتف</span><span class="detail-value">'+emp.phone+'</span></div>';
+    if(emp.email)html+='<div class="detail-row"><span class="detail-label">البريد</span><span class="detail-value">'+emp.email+'</span></div>';
+    html+='<div class="detail-row"><span class="detail-label">الراتب الأساسي</span><span class="detail-value">'+fmtNum(emp.base_salary||0)+' ر.س</span></div>';
+    html+='<div class="detail-row"><span class="detail-label">حساب دخول</span><span class="detail-value">'+(emp.user_id?'<span class="badge badge-ok">مفعّل</span>':'<span class="badge badge-pending">لا يوجد</span>')+'</span></div>';
+
+    // Residence
+    html+='<div class="detail-sec"><h4>&#128197; الإقامة</h4>';
+    if(emp.residence_expiry){
+        const days=Math.ceil((new Date(emp.residence_expiry)-new Date())/(1000*60*60*24));
+        const badge=days<0?'<span class="badge badge-expired">منتهية</span>':days<=30?'<span class="badge badge-expiring">'+days+' يوم</span>':'<span class="badge badge-ok">سارية</span>';
+        html+='<div class="detail-row"><span class="detail-label">تاريخ الانتهاء</span><span class="detail-value">'+emp.residence_expiry+' '+badge+'</span></div>';
+    } else {
+        html+='<p style="color:#888;font-size:.9rem">لم يتم تحديد تاريخ الإقامة</p>';
+    }
+    html+='</div>';
+
+    // Vacation balance
+    html+='<div class="detail-sec"><h4>&#127796; رصيد الإجازات ('+thisYear+')'+(isManager()?'<button class="btn btn-green btn-sm" onclick="openAddVacation(\''+empId+'\',\''+esc(emp.name)+'\')">+ إجازة</button>':'')+'</h4>';
+    html+='<div class="detail-row"><span class="detail-label">المستحق</span><span class="detail-value">'+entitled+' يوم</span></div>';
+    html+='<div class="detail-row"><span class="detail-label">المستخدم</span><span class="detail-value">'+usedDays+' يوم</span></div>';
+    html+='<div class="detail-row"><span class="detail-label">المتبقي</span><span class="detail-value">'+remaining+' يوم</span></div>';
+    html+='<div class="vac-bar-wrap"><div class="vac-bar"><div class="vac-bar-fill" style="width:'+Math.min(100,pct)+'%"></div></div><div class="vac-bar-text"><span>'+usedDays+' مستخدم</span><span>'+remaining+' متبقي</span></div></div>';
+    if(vacs.length>0){
+        html+='<table class="mini-table" style="margin-top:.75rem"><thead><tr><th>من</th><th>إلى</th><th>أيام</th><th>النوع</th></tr></thead><tbody>';
+        vacs.forEach(v=>{html+='<tr><td>'+v.start_date+'</td><td>'+v.end_date+'</td><td>'+v.days+'</td><td>'+vacTypeAr(v.type)+'</td></tr>';});
+        html+='</tbody></table>';
+    }
+    html+='</div>';
+
+    // Payroll history
+    html+='<div class="detail-sec"><h4>&#128176; آخر الرواتب</h4>';
+    if(pays.length>0){
+        html+='<table class="mini-table"><thead><tr><th>الشهر</th><th>الأساسي</th><th>البونص</th><th>الصافي</th></tr></thead><tbody>';
+        pays.forEach(p=>{html+='<tr><td>'+monthAr(p.month)+' '+p.year+'</td><td>'+fmtNum(p.base_salary)+'</td><td>'+fmtNum(p.bonus)+'</td><td style="font-weight:700">'+fmtNum(p.net_salary)+'</td></tr>';});
+        html+='</tbody></table>';
+    } else {
+        html+='<p style="color:#888;font-size:.9rem">لا يوجد سجلات</p>';
+    }
+    html+='</div>';
+
+    $('empDetailBody').innerHTML=html;
+    openModal('empDetailModal');
+}
+
+// ====== VACATIONS ======
+function openAddVacation(empId,empName){
+    $('vacEmpId').value=empId;$('vacEmpName').textContent=empName;
+    $('vacStart').value='';$('vacEnd').value='';$('vacDays').value='';$('vacType').value='annual';$('vacNotes').value='';
+    closeModal('empDetailModal');
+    openModal('vacModal');
+}
+function calcVacDays(){
+    const s=$('vacStart').value,e=$('vacEnd').value;
+    if(s&&e){
+        const days=Math.ceil((new Date(e)-new Date(s))/(1000*60*60*24))+1;
+        $('vacDays').value=days>0?days:0;
+    }
+}
+async function saveVacation(){
+    const employee_id=$('vacEmpId').value;
+    const start_date=$('vacStart').value,end_date=$('vacEnd').value;
+    const days=parseInt($('vacDays').value)||0;
+    const type=$('vacType').value,notes=$('vacNotes').value.trim()||null;
+    if(!start_date||!end_date||days<=0){toast('أدخل تواريخ صحيحة','err');return;}
+    try{
+        const{error}=await sb.from('vacations').insert({employee_id,start_date,end_date,days,type,notes,created_by:U.id});
+        if(error)throw error;
+        toast('تم تسجيل الإجازة','ok');closeModal('vacModal');
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+
+// ====== PAYROLL ======
+function changePayrollMonth(delta){
+    payrollMonth+=delta;
+    if(payrollMonth>12){payrollMonth=1;payrollYear++;}
+    if(payrollMonth<1){payrollMonth=12;payrollYear--;}
+    loadPayroll();
+}
+async function loadPayroll(){
+    $('payrollMonthLabel').textContent=monthAr(payrollMonth)+' '+payrollYear;
+    const{data}=await sb.from('payroll').select('*, employee:employees(name,branch_id)').eq('month',payrollMonth).eq('year',payrollYear).order('created_at');
+    const records=data||[];
+    const body=$('payrollBody'),empty=$('payrollEmpty');
+    if(records.length===0){body.innerHTML='';empty.style.display='block';}
+    else{
+        empty.style.display='none';
+        body.innerHTML=records.map(r=>{
+            const bName=branches.find(b=>b.id===r.employee?.branch_id)?.name||'-';
+            return '<tr><td><strong>'+(r.employee?.name||'-')+'</strong></td><td>'+bName+'</td><td>'+fmtNum(r.base_salary)+'</td><td>'+fmtNum(r.bonus)+'</td><td>'+fmtNum(r.overtime)+'</td><td style="color:#f56565">'+fmtNum(r.deductions)+'</td><td style="font-weight:700;color:#48bb78">'+fmtNum(r.net_salary)+'</td><td><button class="btn btn-red btn-sm" onclick="deletePayroll(\''+r.id+'\')">&#128465;</button></td></tr>';
+        }).join('');
+    }
+    // Stats
+    const totalNet=records.reduce((s,r)=>s+(r.net_salary||0),0);
+    const totalBonus=records.reduce((s,r)=>s+(r.bonus||0),0);
+    const totalDed=records.reduce((s,r)=>s+(r.deductions||0),0);
+    $('prTotal').textContent=fmtNum(totalNet);
+    $('prPaid').textContent=records.length;
+    $('prBonus').textContent=fmtNum(totalBonus);
+    $('prDed').textContent=fmtNum(totalDed);
+}
+function openAddPayroll(empId){
+    // Populate employee dropdown
+    $('prEmp').innerHTML='<option value="">-- اختر الموظف --</option>'+allEmpsFlat.map(e=>'<option value="'+e.id+'" data-salary="'+(e.base_salary||0)+'">'+e.name+'</option>').join('');
+    if(empId)$('prEmp').value=empId;
+    // Month/Year
+    $('prMonth').innerHTML='';
+    for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=monthAr(i);if(i===payrollMonth)o.selected=true;$('prMonth').appendChild(o);}
+    $('prYear').value=payrollYear;
+    prefillSalary();
+    $('prBonus').value=0;$('prOvertime').value=0;$('prDeductions').value=0;$('prNotes').value='';
+    calcNet();
+    openModal('payrollModal');
+}
+function prefillSalary(){
+    const sel=$('prEmp');
+    const opt=sel.options[sel.selectedIndex];
+    if(opt&&opt.dataset.salary){$('prBase').value=opt.dataset.salary;}else{$('prBase').value=0;}
+    calcNet();
+}
+function calcNet(){
+    const b=parseFloat($('prBase').value)||0;
+    const bo=parseFloat($('prBonus').value)||0;
+    const ot=parseFloat($('prOvertime').value)||0;
+    const de=parseFloat($('prDeductions').value)||0;
+    $('prNetDisplay').textContent=fmtNum(b+bo+ot-de)+' ر.س';
+}
+async function savePayroll(){
+    const employee_id=$('prEmp').value;
+    if(!employee_id){toast('اختر الموظف','err');return;}
+    const month=parseInt($('prMonth').value),year=parseInt($('prYear').value);
+    const base_salary=parseFloat($('prBase').value)||0;
+    const bonus=parseFloat($('prBonus').value)||0;
+    const overtime=parseFloat($('prOvertime').value)||0;
+    const deductions=parseFloat($('prDeductions').value)||0;
+    const notes=$('prNotes').value.trim()||null;
+    try{
+        const{error}=await sb.from('payroll').insert({employee_id,month,year,base_salary,bonus,overtime,deductions,notes,created_by:U.id});
+        if(error){
+            if(error.message.includes('unique')||error.message.includes('duplicate'))toast('يوجد سجل لهذا الموظف في نفس الشهر','err');
+            else throw error;
+            return;
+        }
+        toast('تم تسجيل الراتب','ok');closeModal('payrollModal');loadPayroll();
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+async function deletePayroll(id){
+    if(!confirm('حذف سجل الراتب؟'))return;
+    try{const{error}=await sb.from('payroll').delete().eq('id',id);if(error)throw error;toast('تم الحذف','ok');loadPayroll();}
+    catch(e){toast('خطأ: '+e.message,'err');}
+}
+
+// ====== MY PROFILE ======
+async function loadMyProfile(){
+    if(!U.employee_id)return;
+    const emp=U.employee;
+    const branch=branches.find(b=>b.id===emp.branch_id);
+
+    // Info card
+    let info='<div class="prow"><span class="plbl">الاسم</span><span class="pval">'+emp.name+'</span></div>';
+    info+='<div class="prow"><span class="plbl">المسمى</span><span class="pval">'+emp.role_title+'</span></div>';
+    info+='<div class="prow"><span class="plbl">الفرع</span><span class="pval">'+(branch?.name||'-')+'</span></div>';
+    if(emp.phone)info+='<div class="prow"><span class="plbl">الهاتف</span><span class="pval">'+emp.phone+'</span></div>';
+    $('myInfoCard').innerHTML=info;
+
+    // Residence + vacation card
+    const[vacRes]=await Promise.all([
+        sb.from('vacations').select('*').eq('employee_id',emp.id).order('start_date',{ascending:false})
+    ]);
+    const vacs=vacRes.data||[];
+    const thisYear=new Date().getFullYear();
+    const usedDays=vacs.filter(v=>new Date(v.start_date).getFullYear()===thisYear).reduce((s,v)=>s+v.days,0);
+    const entitled=emp.vacation_days_entitled||21;
+    const remaining=Math.max(0,entitled-usedDays);
+    const pct=entitled>0?Math.round(usedDays/entitled*100):0;
+
+    let res='';
+    if(emp.residence_expiry){
+        const days=Math.ceil((new Date(emp.residence_expiry)-new Date())/(1000*60*60*24));
+        const badge=days<0?'<span class="badge badge-expired">منتهية</span>':days<=30?'<span class="badge badge-expiring">'+days+' يوم</span>':'<span class="badge badge-ok">سارية ('+days+' يوم)</span>';
+        res+='<div class="prow"><span class="plbl">الإقامة</span><span class="pval">'+emp.residence_expiry+' '+badge+'</span></div>';
+    } else {
+        res+='<div class="prow"><span class="plbl">الإقامة</span><span class="pval" style="color:#888">غير محدد</span></div>';
+    }
+    res+='<div class="prow"><span class="plbl">إجازات مستخدمة</span><span class="pval">'+usedDays+' / '+entitled+' يوم</span></div>';
+    res+='<div class="vac-bar-wrap"><div class="vac-bar"><div class="vac-bar-fill" style="width:'+Math.min(100,pct)+'%"></div></div><div class="vac-bar-text"><span>'+usedDays+' مستخدم</span><span>'+remaining+' متبقي</span></div></div>';
+    $('myResCard').innerHTML=res;
+
+    // Salary records
+    const{data:pays}=await sb.from('payroll').select('*').eq('employee_id',emp.id).order('year',{ascending:false}).order('month',{ascending:false});
+    const salBody=$('mySalaryBody'),salEmpty=$('mySalaryEmpty');
+    if(!pays||pays.length===0){salBody.innerHTML='';salEmpty.style.display='block';}
+    else{
+        salEmpty.style.display='none';
+        salBody.innerHTML=pays.map(p=>'<tr><td>'+monthAr(p.month)+' '+p.year+'</td><td>'+fmtNum(p.base_salary)+'</td><td>'+fmtNum(p.bonus)+'</td><td>'+fmtNum(p.overtime)+'</td><td style="color:#f56565">'+fmtNum(p.deductions)+'</td><td style="font-weight:700;color:#48bb78">'+fmtNum(p.net_salary)+'</td></tr>').join('');
+    }
+
+    // Vacation records
+    const vacBody=$('myVacBody'),vacEmpty=$('myVacEmpty');
+    if(vacs.length===0){vacBody.innerHTML='';vacEmpty.style.display='block';}
+    else{
+        vacEmpty.style.display='none';
+        vacBody.innerHTML=vacs.map(v=>'<tr><td>'+v.start_date+'</td><td>'+v.end_date+'</td><td>'+v.days+'</td><td>'+vacTypeAr(v.type)+'</td><td>'+(v.notes||'-')+'</td></tr>').join('');
+    }
 }
 
 // ====== REQUESTS ======
@@ -517,7 +961,7 @@ function renderRequests(){
     if(allReqs.length===0){body.innerHTML='';empty.style.display='block';return;}
     empty.style.display='none';
     body.innerHTML=allReqs.map(r=>{
-        const canApprove=(isManager())&&(r.status==='pending'||r.status==='urgent');
+        const canApprove=isManager()&&(r.status==='pending'||r.status==='urgent');
         const canFwd=isManager()&&r.status!=='approved'&&r.status!=='rejected';
         return '<tr><td><strong style="cursor:pointer;color:#667eea" onclick="showDetail(\''+r.id+'\')">'+r.title+'</strong></td><td>'+r.creator_name+'</td><td style="white-space:nowrap">'+fmtDate(r.created_at)+'</td><td><span class="badge badge-'+r.status+'">'+statusAr(r.status)+'</span></td><td><div class="req-acts"><button class="btn btn-main btn-sm" onclick="showDetail(\''+r.id+'\')">&#128065; عرض</button>'+(canApprove?'<button class="btn btn-green btn-sm" onclick="reqAction(\''+r.id+'\',\'approved\')">&#10004;</button><button class="btn btn-red btn-sm" onclick="reqAction(\''+r.id+'\',\'rejected\')">&#10008;</button>':'')+(canFwd?'<button class="btn btn-orange btn-sm" onclick="openFwd(\''+r.id+'\')">&#8618;</button>':'')+'</div></td></tr>';
     }).join('');
@@ -547,19 +991,17 @@ async function doForward(){
 }
 async function showDetail(id){
     const req=allReqs.find(r=>r.id===id);if(!req)return;
-    // mark read
     if(!req.is_read){await sb.from('requests').update({is_read:true}).eq('id',id);req.is_read=true;updateNotif();}
-    // load forwards
     const{data:fwds}=await sb.from('request_forwards').select('*, forwarder:profiles!forwarded_by(full_name)').eq('request_id',id).order('created_at',{ascending:false});
     let html='<div class="detail-row"><span class="detail-label">العنوان</span><span class="detail-value">'+req.title+'</span></div>';
     html+='<div class="detail-row"><span class="detail-label">الحالة</span><span class="badge badge-'+req.status+'">'+statusAr(req.status)+'</span></div>';
     html+='<div class="detail-row"><span class="detail-label">الأولوية</span><span class="detail-value">'+(req.priority==='urgent'?'&#9888; عاجلة':'عادية')+'</span></div>';
     html+='<div class="detail-row"><span class="detail-label">المرسل</span><span class="detail-value">'+req.creator_name+'</span></div>';
     html+='<div class="detail-row"><span class="detail-label">التاريخ</span><span class="detail-value">'+fmtDate(req.created_at)+'</span></div>';
-    if(req.description) html+='<div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px"><strong>الوصف:</strong><p style="margin-top:.5rem;color:#555">'+req.description+'</p></div>';
+    if(req.description)html+='<div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px"><strong>الوصف:</strong><p style="margin-top:.5rem;color:#555">'+req.description+'</p></div>';
     if(fwds&&fwds.length>0){
         html+='<div class="fwd-log"><h4>&#8618; سجل التحويل ('+fwds.length+')</h4>';
-        fwds.forEach(f=>{html+='<div class="fwd-entry"><strong>'+( f.forwarder?.full_name||'')+'</strong> '+(f.note?'- '+f.note:'')+' <small style="color:#888">'+fmtDate(f.created_at)+'</small></div>';});
+        fwds.forEach(f=>{html+='<div class="fwd-entry"><strong>'+(f.forwarder?.full_name||'')+'</strong> '+(f.note?'- '+f.note:'')+' <small style="color:#888">'+fmtDate(f.created_at)+'</small></div>';});
         html+='</div>';
     }
     $('detailBody').innerHTML=html;openModal('detailModal');
@@ -601,6 +1043,21 @@ function updateStats(){
     $('stActive').textContent=allReqs.filter(r=>r.status==='pending'||r.status==='forwarded').length;
     $('stPending').textContent=allReqs.filter(r=>r.status==='pending').length;
     $('stUrgent').textContent=allReqs.filter(r=>r.priority==='urgent'&&r.status!=='approved'&&r.status!=='rejected').length;
+    // Residence stats (managers only)
+    if(isManager()){
+        const now=new Date();
+        let expiring=0,expired=0;
+        allEmpsFlat.forEach(e=>{
+            if(!e.residence_expiry)return;
+            const days=Math.ceil((new Date(e.residence_expiry)-now)/(1000*60*60*24));
+            if(days<0)expired++;
+            else if(days<=30)expiring++;
+        });
+        if(expiring>0||expired>0){
+            $('stExpiringWrap').style.display='block';$('stExpiredWrap').style.display='block';
+            $('stExpiring').textContent=expiring;$('stExpired').textContent=expired;
+        }
+    }
 }
 function updateRecent(){
     const el=$('recentList'),recent=allReqs.slice(0,5);
@@ -627,10 +1084,12 @@ function updateOrgChart(){
 // ====== TABS ======
 function switchTab(tab){
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
-    ['dashboard','branches','requests','reports','orgchart','users'].forEach(p=>{const el=$('page-'+p);if(el)el.style.display=p===tab?'block':'none';});
+    ['dashboard','branches','requests','salaries','reports','orgchart','users','myprofile'].forEach(p=>{const el=$('page-'+p);if(el)el.style.display=p===tab?'block':'none';});
     if(tab==='reports')loadReports();
     if(tab==='requests')loadRequests();
     if(tab==='users')loadUsers();
+    if(tab==='salaries')loadPayroll();
+    if(tab==='myprofile')loadMyProfile();
     if(tab==='dashboard')loadRequests().then(()=>{updateStats();updateRecent();});
 }
 
@@ -639,10 +1098,12 @@ function openModal(id){$(id).classList.add('open');}
 function closeModal(id){$(id).classList.remove('open');}
 function statusAr(s){return{pending:'معلّق',approved:'موافق',rejected:'مرفوض',forwarded:'محوّل',urgent:'عاجل'}[s]||s;}
 function roleAr(r){return{ceo:'المدير العام',admin:'مدير إدارة',employee:'موظف'}[r]||r;}
+function vacTypeAr(t){return{annual:'سنوية',sick:'مرضية',emergency:'اضطرارية',unpaid:'بدون راتب'}[t]||t;}
+function monthAr(m){return['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][m]||m;}
 function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('ar-SA');}
+function fmtNum(n){return Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function esc(s){return s?s.replace(/'/g,"\\'"):'';}
 function toast(msg,type){const t=$('toast');t.className='toast '+(type||'ok')+' show';t.textContent=msg;setTimeout(()=>t.classList.remove('show'),3000);}
-// Close dropdown on outside click
 document.addEventListener('click',e=>{if(!e.target.closest('.notif-wrap'))$('notifDrop').classList.remove('open');});
 </script>
 </body>
