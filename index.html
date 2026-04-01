@@ -355,9 +355,9 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="field"><label>المسمى الوظيفي</label><input id="empRole" placeholder="مدير فرع"></div>
 <div class="field"><label>الهاتف</label><input id="empPhone" placeholder="05XXXXXXXX" dir="ltr"></div>
 <div class="field"><label>البريد</label><input id="empEmail" type="email" placeholder="user@co.com" dir="ltr"></div>
-<div class="field"><label>الراتب الأساسي</label><input id="empSalary" type="number" placeholder="0" dir="ltr"></div>
+<div class="field"><label>الراتب الأساسي</label><input id="empSalary" type="text" inputmode="decimal" placeholder="0" dir="ltr"></div>
 <div class="field"><label>تاريخ انتهاء الإقامة</label><input id="empResExpiry" type="date" dir="ltr"></div>
-<div class="field"><label>أيام الإجازة السنوية</label><input id="empVacDays" type="number" value="21" dir="ltr"></div>
+<div class="field"><label>أيام الإجازة السنوية</label><input id="empVacDays" type="text" inputmode="numeric" value="21" dir="ltr"></div>
 <div id="accountSection" class="toggle-wrap" style="display:none">
 <input type="checkbox" id="empCreateAccount" onchange="toggleAccountFields()">
 <label for="empCreateAccount">إنشاء حساب دخول للموظف</label>
@@ -466,11 +466,11 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="modal-body">
 <div class="field"><label>الموظف</label><select id="prEmp" onchange="prefillSalary()"><option value="">-- اختر الموظف --</option></select></div>
 <div class="field"><label>الشهر</label><select id="prMonth"></select></div>
-<div class="field"><label>السنة</label><input id="prYear" type="number" dir="ltr"></div>
-<div class="field"><label>الراتب الأساسي</label><input id="prBase" type="number" dir="ltr" oninput="calcNet()"></div>
-<div class="field"><label>البونص</label><input id="prBonus" type="number" value="0" dir="ltr" oninput="calcNet()"></div>
-<div class="field"><label>الأجر الإضافي</label><input id="prOvertime" type="number" value="0" dir="ltr" oninput="calcNet()"></div>
-<div class="field"><label>الحسميات</label><input id="prDeductions" type="number" value="0" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>السنة</label><input id="prYear" type="text" inputmode="numeric" dir="ltr"></div>
+<div class="field"><label>الراتب الأساسي</label><input id="prBase" type="text" inputmode="decimal" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>البونص</label><input id="prBonus" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>الأجر الإضافي</label><input id="prOvertime" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
+<div class="field"><label>الحسميات</label><input id="prDeductions" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
 <div class="field"><label>ملاحظات</label><textarea id="prNotes" placeholder="ملاحظات..."></textarea></div>
 <div class="net-display"><div class="net-lbl">الصافي</div><div class="net-val" id="prNetDisplay">0</div></div>
 </div>
@@ -1085,7 +1085,7 @@ function roleAr(r){return{ceo:'المدير العام',admin:'مدير إدار
 function vacTypeAr(t){return{annual:'سنوية',sick:'مرضية',emergency:'اضطرارية',unpaid:'بدون راتب'}[t]||t;}
 function monthAr(m){return['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][m]||m;}
 function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('ar-SA');}
-function pNum(v){return parseFloat(String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)))||0;}
+function pNum(v){let s=String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));s=s.replace(/[^\d.\-]/g,'');return parseFloat(s)||0;}
 function fmtNum(n){return Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function esc(s){return s?s.replace(/'/g,"\\'"):'';}
 function toast(msg,type){const t=$('toast');t.className='toast '+(type||'ok')+' show';t.textContent=msg;setTimeout(()=>t.classList.remove('show'),3000);}
