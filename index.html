@@ -854,7 +854,8 @@ function calcNet(){
     const bo=pNum($('prBonus').value);
     const ot=pNum($('prOvertime').value);
     const de=pNum($('prDeductions').value);
-    $('prNetDisplay').textContent=fmtNum(b+bo+ot-de)+' ر.س';
+    const net=b+bo+ot-de;
+    $('prNetDisplay').innerHTML=fmtNum(net)+' ر.س<br><small style="font-size:.6rem;opacity:.7">'+b+' + '+bo+' + '+ot+' - '+de+' = '+net+'</small>';
 }
 async function savePayroll(){
     const employee_id=$('prEmp').value;
