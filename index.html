@@ -641,7 +641,7 @@ async function saveEmp(){
     const role_title=$('empRole').value.trim()||'موظف';
     const phone=$('empPhone').value.trim()||null;
     const email=$('empEmail').value.trim()||null;
-    const base_salary=parseFloat($('empSalary').value)||0;
+    const base_salary=pNum($('empSalary').value);
     const residence_expiry=$('empResExpiry').value||null;
     const vacation_days_entitled=parseInt($('empVacDays').value)||21;
     const createAccount=$('empCreateAccount').checked&&!id;
@@ -850,20 +850,20 @@ function prefillSalary(){
     calcNet();
 }
 function calcNet(){
-    const b=parseFloat($('prBase').value)||0;
-    const bo=parseFloat($('prBonus').value)||0;
-    const ot=parseFloat($('prOvertime').value)||0;
-    const de=parseFloat($('prDeductions').value)||0;
+    const b=pNum($('prBase').value);
+    const bo=pNum($('prBonus').value);
+    const ot=pNum($('prOvertime').value);
+    const de=pNum($('prDeductions').value);
     $('prNetDisplay').textContent=fmtNum(b+bo+ot-de)+' ر.س';
 }
 async function savePayroll(){
     const employee_id=$('prEmp').value;
     if(!employee_id){toast('اختر الموظف','err');return;}
     const month=parseInt($('prMonth').value),year=parseInt($('prYear').value);
-    const base_salary=parseFloat($('prBase').value)||0;
-    const bonus=parseFloat($('prBonus').value)||0;
-    const overtime=parseFloat($('prOvertime').value)||0;
-    const deductions=parseFloat($('prDeductions').value)||0;
+    const base_salary=pNum($('prBase').value);
+    const bonus=pNum($('prBonus').value);
+    const overtime=pNum($('prOvertime').value);
+    const deductions=pNum($('prDeductions').value);
     const notes=$('prNotes').value.trim()||null;
     try{
         const{error}=await sb.from('payroll').insert({employee_id,month,year,base_salary,bonus,overtime,deductions,notes,created_by:U.id});
@@ -1085,6 +1085,7 @@ function roleAr(r){return{ceo:'المدير العام',admin:'مدير إدار
 function vacTypeAr(t){return{annual:'سنوية',sick:'مرضية',emergency:'اضطرارية',unpaid:'بدون راتب'}[t]||t;}
 function monthAr(m){return['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'][m]||m;}
 function fmtDate(d){if(!d)return'';return new Date(d).toLocaleDateString('ar-SA');}
+function pNum(v){return parseFloat(String(v).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)))||0;}
 function fmtNum(n){return Number(n||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});}
 function esc(s){return s?s.replace(/'/g,"\\'"):'';}
 function toast(msg,type){const t=$('toast');t.className='toast '+(type||'ok')+' show';t.textContent=msg;setTimeout(()=>t.classList.remove('show'),3000);}
