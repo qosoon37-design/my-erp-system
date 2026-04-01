@@ -280,8 +280,8 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="stats-row">
 <div class="stat bg1"><div class="val" id="prTotal">0</div><div class="lbl">إجمالي الصافي</div></div>
 <div class="stat bg2"><div class="val" id="prPaid">0</div><div class="lbl">موظف مسجل</div></div>
-<div class="stat bg3"><div class="val" id="prBonus">0</div><div class="lbl">إجمالي البونص</div></div>
-<div class="stat bg4"><div class="val" id="prDed">0</div><div class="lbl">إجمالي الحسميات</div></div>
+<div class="stat bg3"><div class="val" id="stPrBonus">0</div><div class="lbl">إجمالي البونص</div></div>
+<div class="stat bg4"><div class="val" id="stPrDed">0</div><div class="lbl">إجمالي الحسميات</div></div>
 </div>
 <div class="sec">
 <h3><span>كشف الرواتب</span><div class="btns"><button class="btn btn-main btn-sm" onclick="openAddPayroll()">+ تسجيل راتب</button></div></h3>
@@ -472,7 +472,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="field"><label>الأجر الإضافي</label><input id="prOvertime" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
 <div class="field"><label>الحسميات</label><input id="prDeductions" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
 <div class="field"><label>ملاحظات</label><textarea id="prNotes" placeholder="ملاحظات..."></textarea></div>
-<div class="net-display"><div class="net-lbl">الصافي v4.1</div><div class="net-val" id="prNetDisplay">0</div><div id="prDebug" style="font-size:.7rem;opacity:.8;margin-top:.3rem"></div></div>
+<div class="net-display"><div class="net-lbl">الصافي</div><div class="net-val" id="prNetDisplay">0</div></div>
 </div>
 <div class="modal-foot"><button class="btn btn-main btn-sm" onclick="savePayroll()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('payrollModal')">إلغاء</button></div>
 </div>
@@ -827,8 +827,8 @@ async function loadPayroll(){
     const totalDed=records.reduce((s,r)=>s+(r.deductions||0),0);
     $('prTotal').textContent=fmtNum(totalNet);
     $('prPaid').textContent=records.length;
-    $('prBonus').textContent=fmtNum(totalBonus);
-    $('prDed').textContent=fmtNum(totalDed);
+    $('stPrBonus').textContent=fmtNum(totalBonus);
+    $('stPrDed').textContent=fmtNum(totalDed);
 }
 function openAddPayroll(empId){
     // Populate employee dropdown
@@ -856,7 +856,6 @@ function calcNet(){
     const de=pNum($('prDeductions').value);
     const net=b+bo+ot-de;
     $('prNetDisplay').textContent=fmtNum(net)+' ر.س';
-    $('prDebug').textContent=b+' + '+bo+' + '+ot+' - '+de+' = '+net;
 }
 async function savePayroll(){
     const employee_id=$('prEmp').value;
