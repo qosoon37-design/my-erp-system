@@ -191,7 +191,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div id="loginScreen" class="fullscreen" style="display:none">
 <div class="card-box">
 <h2>&#127970; نظام إدارة المؤسسات</h2>
-<p class="sub">ERP System v4.0</p>
+<p class="sub">ERP System v4.1</p>
 <div class="field"><label>البريد الإلكتروني</label><input id="lEmail" type="email" placeholder="user@company.com" dir="ltr"></div>
 <div class="field"><label>كلمة المرور</label><input id="lPass" type="password" placeholder="••••••••"></div>
 <div id="loginErr" class="err-msg" style="display:none"></div>
@@ -472,7 +472,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="field"><label>الأجر الإضافي</label><input id="prOvertime" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
 <div class="field"><label>الحسميات</label><input id="prDeductions" type="text" inputmode="decimal" value="0" dir="ltr" oninput="calcNet()"></div>
 <div class="field"><label>ملاحظات</label><textarea id="prNotes" placeholder="ملاحظات..."></textarea></div>
-<div class="net-display"><div class="net-lbl">الصافي</div><div class="net-val" id="prNetDisplay">0</div></div>
+<div class="net-display"><div class="net-lbl">الصافي v4.1</div><div class="net-val" id="prNetDisplay">0</div><div id="prDebug" style="font-size:.7rem;opacity:.8;margin-top:.3rem"></div></div>
 </div>
 <div class="modal-foot"><button class="btn btn-main btn-sm" onclick="savePayroll()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('payrollModal')">إلغاء</button></div>
 </div>
@@ -855,7 +855,8 @@ function calcNet(){
     const ot=pNum($('prOvertime').value);
     const de=pNum($('prDeductions').value);
     const net=b+bo+ot-de;
-    $('prNetDisplay').innerHTML=fmtNum(net)+' ر.س<br><small style="font-size:.6rem;opacity:.7">'+b+' + '+bo+' + '+ot+' - '+de+' = '+net+'</small>';
+    $('prNetDisplay').textContent=fmtNum(net)+' ر.س';
+    $('prDebug').textContent=b+' + '+bo+' + '+ot+' - '+de+' = '+net;
 }
 async function savePayroll(){
     const employee_id=$('prEmp').value;
