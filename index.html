@@ -188,16 +188,6 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <body>
 <div id="toast" class="toast"></div>
 
-<div id="setupScreen" class="fullscreen" style="display:none">
-<div class="card-box">
-<h2>&#9881; إعداد النظام</h2>
-<p class="sub">أدخل بيانات مشروع Supabase</p>
-<div class="field"><label>Project URL</label><input id="sUrl" placeholder="https://xxxxx.supabase.co" dir="ltr"></div>
-<div class="field"><label>Anon Key</label><input id="sKey" placeholder="eyJhbGciOi..." dir="ltr" style="font-size:.85rem"></div>
-<button class="btn btn-main" onclick="saveSetup()">حفظ وتفعيل</button>
-</div>
-</div>
-
 <div id="loginScreen" class="fullscreen" style="display:none">
 <div class="card-box">
 <h2>&#127970; نظام إدارة المؤسسات</h2>
@@ -494,11 +484,12 @@ let payrollMonth,payrollYear;
 function isManager(){return U&&(U.role==='ceo'||U.role==='admin');}
 function isCEO(){return U&&U.role==='ceo';}
 
+const SB_URL='https://yyrwflasaracjbqlgneq.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5cndmbGFzYXJhY2picWxnbmVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMDQsImV4cCI6MjA5MDQzNTEwNH0.vNJkWAl5AAmdEOP_MHicRpMTYBSn3CHVkH6RHvgLPh8';
+
 (async function(){
     const now=new Date();payrollMonth=now.getMonth()+1;payrollYear=now.getFullYear();
-    const c=getConfig();
-    if(!c){$('setupScreen').style.display='flex';return;}
-    sb=supabase.createClient(c.url,c.key);
+    sb=supabase.createClient(SB_URL,SB_KEY);
     $('loadingScreen').style.display='flex';
     try{
         const{data:{session}}=await sb.auth.getSession();
@@ -508,12 +499,6 @@ function isCEO(){return U&&U.role==='ceo';}
 })();
 
 function $(id){return document.getElementById(id);}
-function getConfig(){try{return JSON.parse(localStorage.getItem('erp_supabase_config'));}catch(e){return null;}}
-function saveSetup(){
-    const url=$('sUrl').value.trim(),key=$('sKey').value.trim();
-    if(!url||!key){toast('أدخل جميع البيانات','err');return;}
-    localStorage.setItem('erp_supabase_config',JSON.stringify({url,key}));location.reload();
-}
 
 async function doLogin(){
     const email=$('lEmail').value.trim(),pass=$('lPass').value,err=$('loginErr');
@@ -539,7 +524,7 @@ async function loadUser(uid){
 }
 
 function showApp(){
-    $('setupScreen').style.display='none';$('loginScreen').style.display='none';$('loadingScreen').style.display='none';$('app').style.display='block';
+    $('loginScreen').style.display='none';$('loadingScreen').style.display='none';$('app').style.display='block';
     $('userName').textContent=U.name+' | '+U.roleName;
     if(isManager()){
         $('branchAdminBtns').style.display='flex';
@@ -681,8 +666,7 @@ async function saveEmp(){
             // Create login account if requested
             if(createAccount){
                 try{
-                    const c=getConfig();
-                    const tempSb=supabase.createClient(c.url,c.key,{auth:{persistSession:false,autoRefreshToken:false}});
+                    const tempSb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
                     const{data:signData,error:signErr}=await tempSb.auth.signUp({
                         email,password,
                         options:{data:{full_name:name,branch_id:selBranchId,role:'employee'}}
