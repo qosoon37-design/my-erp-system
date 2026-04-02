@@ -190,6 +190,26 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 /* Type-specific fields */
 .type-fields{display:none;margin-top:.5rem;padding:1rem;background:#f0f8ff;border-radius:10px;border:2px solid #667eea}
 .type-fields.show{display:block}
+.role-viewer{background:#e0f2f1;color:#00695c}
+.upload-area{border:2px dashed #667eea;border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s;background:#f8f9ff}
+.upload-area:hover{background:#eef2ff;border-color:#764ba2}
+.upload-area input[type=file]{display:none}
+.report-list{display:grid;gap:.75rem}
+.report-item{display:flex;justify-content:space-between;align-items:center;padding:1rem;background:#f8f9fa;border-radius:10px;border:1px solid #e8e8e8;transition:all .2s}
+.report-item:hover{border-color:#667eea;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.report-item .ri-info h4{font-size:.95rem;color:#1a1a2e;display:flex;align-items:center;gap:.5rem}
+.report-item .ri-info p{font-size:.8rem;color:#888;margin-top:.25rem}
+.report-item .ri-acts{display:flex;gap:.5rem;align-items:center}
+.file-badge{display:inline-block;padding:.2rem .5rem;border-radius:6px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+.file-pdf{background:#fee2e2;color:#991b1b}
+.file-xlsx,.file-xls{background:#d1fae5;color:#065f46}
+.file-csv{background:#e0e7ff;color:#3730a3}
+.sales-table{width:100%;border-collapse:collapse}
+.sales-table th{background:#1a1a2e;color:#fff;padding:.75rem;text-align:right;font-size:.85rem}
+.sales-table td{padding:.75rem;border-bottom:1px solid #eee;font-size:.9rem}
+.sales-table tr:hover{background:#f8f9fa}
+.profit-positive{color:#48bb78;font-weight:700}
+.profit-negative{color:#f56565;font-weight:700}
 @media(max-width:768px){
 .topbar{padding:.75rem 1rem}.topbar h1{font-size:1rem}
 .tab{padding:.75rem 1rem;font-size:.85rem}
@@ -209,7 +229,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div id="loginScreen" class="fullscreen" style="display:none">
 <div class="card-box">
 <h2>&#127970; نظام إدارة المؤسسات</h2>
-<p class="sub">ERP System v5.0</p>
+<p class="sub">ERP System v6.0</p>
 <div class="field"><label>البريد الإلكتروني</label><input id="lEmail" type="email" placeholder="user@company.com" dir="ltr"></div>
 <div class="field"><label>كلمة المرور</label><input id="lPass" type="password" placeholder="••••••••"></div>
 <div id="loginErr" class="err-msg" style="display:none"></div>
@@ -242,6 +262,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="tab" data-tab="requests" onclick="switchTab('requests')">&#128221; الطلبات</div>
 <div class="tab" data-tab="salaries" onclick="switchTab('salaries')" id="tabSalaries" style="display:none">&#128176; الرواتب</div>
 <div class="tab" data-tab="reports" onclick="switchTab('reports')">&#128200; التقارير</div>
+<div class="tab" data-tab="finance" onclick="switchTab('finance')" id="tabFinance" style="display:none">&#128178; المالية</div>
 <div class="tab" data-tab="orgchart" onclick="switchTab('orgchart')">&#127963; الهيكل التنظيمي</div>
 <div class="tab" data-tab="users" onclick="switchTab('users')" id="tabUsers" style="display:none">&#128101; المستخدمين</div>
 <div class="tab" data-tab="myprofile" onclick="switchTab('myprofile')" id="tabMyProfile" style="display:none">&#128100; ملفي</div>
@@ -322,6 +343,34 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="charts-row">
 <div class="chart-wrap"><h4>الطلبات حسب الفرع</h4><canvas id="chartBranch"></canvas></div>
 <div class="chart-wrap"><h4>توزيع الحالات</h4><canvas id="chartStatus"></canvas></div>
+</div>
+</div>
+
+<div id="page-finance" style="display:none">
+<div class="month-nav">
+<button onclick="changeFinMonth(-1)">&#9664;</button>
+<span id="finMonthLabel">---</span>
+<button onclick="changeFinMonth(1)">&#9654;</button>
+</div>
+<div class="stats-row">
+<div class="stat bg2"><div class="val" id="finTotalSales">0</div><div class="lbl">إجمالي المبيعات</div></div>
+<div class="stat bg4"><div class="val" id="finTotalExp">0</div><div class="lbl">إجمالي المصروفات</div></div>
+<div class="stat bg3"><div class="val" id="finTotalDep">0</div><div class="lbl">الإهلاكات</div></div>
+<div class="stat bg1"><div class="val" id="finNetProfit">0</div><div class="lbl">صافي الربح</div></div>
+</div>
+<div class="charts-row">
+<div class="chart-wrap"><h4>المبيعات حسب الفرع</h4><canvas id="chartSales"></canvas></div>
+<div class="chart-wrap"><h4>الأرباح والخسائر</h4><canvas id="chartPnl"></canvas></div>
+</div>
+<div class="sec">
+<h3><span>مبيعات الفروع</span><div class="btns" id="salesAdminBtns" style="display:none"><button class="btn btn-main btn-sm" onclick="openAddSales()">+ إضافة بيانات مبيعات</button></div></h3>
+<div style="overflow-x:auto"><table class="sales-table"><thead><tr><th>الفرع</th><th>المبيعات</th><th>المصروفات</th><th>الإهلاك</th><th>صافي الربح</th><th>ملاحظات</th><th id="salesActsHead" style="display:none">إجراءات</th></tr></thead><tbody id="salesBody"></tbody></table></div>
+<div id="salesEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد بيانات مبيعات لهذا الشهر</div>
+</div>
+<div class="sec">
+<h3><span>التقارير المرفوعة</span><div class="btns" id="reportAdminBtns" style="display:none"><button class="btn btn-main btn-sm" onclick="openUploadReport()">+ رفع تقرير</button></div></h3>
+<div class="report-list" id="reportList"></div>
+<div id="reportEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد تقارير مرفوعة</div>
 </div>
 </div>
 
@@ -516,12 +565,49 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 </div>
 </div>
 
+<div class="modal-bg" id="salesModal">
+<div class="modal-box">
+<div class="modal-head" style="background:linear-gradient(135deg,#38b2ac,#2c7a7b)"><h3>إضافة بيانات مبيعات</h3><button class="modal-close" onclick="closeModal('salesModal')">&times;</button></div>
+<div class="modal-body">
+<div class="field"><label>الفرع</label><select id="salesBranch"></select></div>
+<div class="field"><label>الشهر</label><select id="salesMonth"></select></div>
+<div class="field"><label>السنة</label><input id="salesYear" type="text" inputmode="numeric" dir="ltr"></div>
+<div class="field"><label>إجمالي المبيعات</label><input id="salesAmount" type="text" inputmode="decimal" placeholder="0" dir="ltr"></div>
+<div class="field"><label>إجمالي المصروفات</label><input id="salesExpenses" type="text" inputmode="decimal" placeholder="0" dir="ltr"></div>
+<div class="field"><label>الإهلاكات</label><input id="salesDepreciation" type="text" inputmode="decimal" placeholder="0" dir="ltr"></div>
+<div class="field"><label>ملاحظات</label><textarea id="salesNotes" placeholder="ملاحظات..."></textarea></div>
+</div>
+<div class="modal-foot"><button class="btn btn-teal btn-sm" onclick="saveSalesData()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('salesModal')">إلغاء</button></div>
+</div>
+</div>
+
+<div class="modal-bg" id="uploadModal">
+<div class="modal-box">
+<div class="modal-head"><h3>رفع تقرير</h3><button class="modal-close" onclick="closeModal('uploadModal')">&times;</button></div>
+<div class="modal-body">
+<div class="field"><label>عنوان التقرير</label><input id="uploadTitle" placeholder="تقرير الأرباح والخسائر..."></div>
+<div class="field"><label>نوع التقرير</label><select id="uploadType"><option value="pnl">أرباح وخسائر</option><option value="expenses">مصروفات</option><option value="depreciation">إهلاكات</option><option value="sales">مبيعات</option><option value="other">أخرى</option></select></div>
+<div class="field"><label>الفرع (اختياري)</label><select id="uploadBranch"><option value="">جميع الفروع</option></select></div>
+<div class="field"><label>الملف (PDF, Excel)</label>
+<div class="upload-area" onclick="$('uploadFile').click()">
+<div id="uploadLabel">&#128196; اضغط لاختيار الملف<br><small>PDF, XLSX, XLS, CSV</small></div>
+<input type="file" id="uploadFile" accept=".pdf,.xlsx,.xls,.csv" onchange="onFileSelected()">
+</div>
+</div>
+<div class="field"><label>ملاحظات</label><textarea id="uploadNotes" placeholder="ملاحظات..."></textarea></div>
+</div>
+<div class="modal-foot"><button class="btn btn-main btn-sm" onclick="doUploadReport()">رفع</button><button class="btn btn-gray btn-sm" onclick="closeModal('uploadModal')">إلغاء</button></div>
+</div>
+</div>
+
 <script>
 let sb=null,U=null,branches=[],selBranchId=null,selBranchIdx=-1,allReqs=[],sentReqs=[],receivedReqs=[],allEmpsFlat=[],delEmpId=null,trEmpId=null,fwdReqId=null,ch1=null,ch2=null;
-let payrollMonth,payrollYear;
+let payrollMonth,payrollYear,finMonth,finYear,salesData=[],finReports=[],chSales=null,chPnl=null;
 let reqViewMode='received';
 function isManager(){return U&&(U.role==='ceo'||U.role==='admin');}
 function isCEO(){return U&&U.role==='ceo';}
+function isViewer(){return U&&U.role==='viewer';}
+function canViewAll(){return U&&(U.role==='ceo'||U.role==='admin'||U.role==='viewer');}
 
 const SB_URL='https://yyrwflasaracjbqlgneq.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5cndmbGFzYXJhY2picWxnbmVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMDQsImV4cCI6MjA5MDQzNTEwNH0.vNJkWAl5AAmdEOP_MHicRpMTYBSn3CHVkH6RHvgLPh8';
@@ -529,7 +615,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const REQ_TYPES={vacation:{label:'إجازة',css:'rtype-vacation'},advance:{label:'سلفة',css:'rtype-advance'},complaint:{label:'شكوى',css:'rtype-complaint'},suggestion:{label:'اقتراح',css:'rtype-suggestion'},transfer:{label:'نقل',css:'rtype-transfer'},resignation:{label:'استقالة',css:'rtype-resignation'},promotion:{label:'ترقية',css:'rtype-promotion'},other:{label:'أخرى',css:'rtype-other'}};
 
 (async function(){
-    const now=new Date();payrollMonth=now.getMonth()+1;payrollYear=now.getFullYear();
+    const now=new Date();payrollMonth=now.getMonth()+1;payrollYear=now.getFullYear();finMonth=payrollMonth;finYear=payrollYear;
     sb=supabase.createClient(SB_URL,SB_KEY);
     $('loadingScreen').style.display='flex';
     try{
@@ -557,7 +643,7 @@ async function doLogout(){await sb.auth.signOut();U=null;$('app').style.display=
 
 async function loadUser(uid){
     const{data:p}=await sb.from('profiles').select('*, branches(name)').eq('id',uid).single();
-    U=p?{id:p.id,name:p.full_name,role:p.role,roleName:p.role==='ceo'?'المدير العام':p.role==='admin'?'مدير الإدارة':'موظف',branchName:p.branches?.name||'الإدارة العليا',branch_id:p.branch_id}:{id:uid,name:'مستخدم',role:'employee',roleName:'موظف',branchName:'',branch_id:null};
+    U=p?{id:p.id,name:p.full_name,role:p.role,roleName:p.role==='ceo'?'المدير العام':p.role==='admin'?'مدير الإدارة':p.role==='viewer'?'مدير مراقب':'موظف',branchName:p.branches?.name||'الإدارة العليا',branch_id:p.branch_id}:{id:uid,name:'مستخدم',role:'employee',roleName:'موظف',branchName:'',branch_id:null};
     const{data:emp}=await sb.from('employees').select('*').eq('user_id',uid).maybeSingle();
     U.employee=emp||null;
     U.employee_id=emp?.id||null;
@@ -573,7 +659,9 @@ function showApp(){
     }
     if(isCEO()){$('tabUsers').style.display='block';}
     if(U.employee){$('tabMyProfile').style.display='block';}
-    reqViewMode=isManager()?'received':'sent';
+    if(canViewAll()){$('tabFinance').style.display='block';}
+    if(isViewer()){$('tabSalaries').style.display='none';$('branchAdminBtns').style.display='none';$('empAdminBtns').style.display='none';}
+    reqViewMode=isManager()||isViewer()?'received':'sent';
     loadAll();
 }
 async function loadAll(){await Promise.all([loadBranches(),loadRequests()]);updateStats();updateRecent();updateOrgChart();updateNotif();}
@@ -1078,7 +1166,7 @@ async function loadUsers(){
     empty.style.display='none';
     body.innerHTML=data.map(u=>{
         const rb='<span class="role-badge role-'+u.role+'">'+roleAr(u.role)+'</span>';
-        const sel=isCEO()?'<select class="role-select" onchange="changeRole(\''+u.id+'\',this.value)"><option value="employee"'+(u.role==='employee'?' selected':'')+'>موظف</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>مدير إدارة</option><option value="ceo"'+(u.role==='ceo'?' selected':'')+'>مدير عام</option></select>':'<span style="color:#888">-</span>';
+        const sel=isCEO()?'<select class="role-select" onchange="changeRole(\''+u.id+'\',this.value)"><option value="employee"'+(u.role==='employee'?' selected':'')+'>موظف</option><option value="viewer"'+(u.role==='viewer'?' selected':'')+'>مدير مراقب</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>مدير إدارة</option><option value="ceo"'+(u.role==='ceo'?' selected':'')+'>مدير عام</option></select>':'<span style="color:#888">-</span>';
         return '<tr><td><strong>'+u.full_name+'</strong></td><td>'+rb+'</td><td>'+sel+'</td></tr>';
     }).join('');
 }
@@ -1128,12 +1216,13 @@ function updateOrgChart(){
 // ====== TABS ======
 function switchTab(tab){
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
-    ['dashboard','branches','requests','salaries','reports','orgchart','users','myprofile'].forEach(p=>{const el=$('page-'+p);if(el)el.style.display=p===tab?'block':'none';});
+    ['dashboard','branches','requests','salaries','reports','finance','orgchart','users','myprofile'].forEach(p=>{const el=$('page-'+p);if(el)el.style.display=p===tab?'block':'none';});
     if(tab==='reports')loadReports();
     if(tab==='requests')loadRequests();
     if(tab==='users')loadUsers();
     if(tab==='salaries')loadPayroll();
     if(tab==='myprofile')loadMyProfile();
+    if(tab==='finance')loadFinance();
     if(tab==='dashboard')loadRequests().then(()=>{updateStats();updateRecent();});
 }
 
@@ -1141,7 +1230,7 @@ function switchTab(tab){
 function openModal(id){$(id).classList.add('open');}
 function closeModal(id){$(id).classList.remove('open');}
 function statusAr(s){return{pending:'معلّق',approved:'موافق',rejected:'مرفوض',forwarded:'محوّل',urgent:'عاجل'}[s]||s;}
-function roleAr(r){return{ceo:'المدير العام',admin:'مدير إدارة',employee:'موظف'}[r]||r;}
+function roleAr(r){return{ceo:'المدير العام',admin:'مدير إدارة',viewer:'مدير مراقب',employee:'موظف'}[r]||r;}
 function vacTypeAr(t){return{annual:'سنوية',sick:'مرضية',emergency:'اضطرارية',unpaid:'بدون راتب'}[t]||t;}
 function reqTypeAr(t){return(REQ_TYPES[t]||REQ_TYPES.other).label;}
 function targetTypeAr(tt,tbid){
@@ -1158,6 +1247,104 @@ function fmtNum(n){return Number(n||0).toLocaleString('en-US',{minimumFractionDi
 function esc(s){return s?s.replace(/'/g,"\\'"):'';}
 function toast(msg,type){const t=$('toast');t.className='toast '+(type||'ok')+' show';t.textContent=msg;setTimeout(()=>t.classList.remove('show'),3000);}
 document.addEventListener('click',e=>{if(!e.target.closest('.notif-wrap'))$('notifDrop').classList.remove('open');});
+
+// ====== FINANCIAL DASHBOARD ======
+function changeFinMonth(delta){finMonth+=delta;if(finMonth>12){finMonth=1;finYear++;}if(finMonth<1){finMonth=12;finYear--;}loadFinance();}
+async function loadFinance(){
+    $('finMonthLabel').textContent=monthAr(finMonth)+' '+finYear;
+    if(isManager()&&!isViewer()){$('salesAdminBtns').style.display='flex';$('reportAdminBtns').style.display='flex';$('salesActsHead').style.display='';}
+    await Promise.all([loadBranchSales(),loadFinReports()]);
+}
+async function loadBranchSales(){
+    const{data}=await sb.from('branch_sales').select('*, branch:branches(name)').eq('month',finMonth).eq('year',finYear).order('created_at');
+    salesData=data||[];
+    const body=$('salesBody'),empty=$('salesEmpty');
+    if(salesData.length===0){body.innerHTML='';empty.style.display='block';}
+    else{
+        empty.style.display='none';
+        body.innerHTML=salesData.map(r=>{
+            const pClass=(r.net_profit||0)>=0?'profit-positive':'profit-negative';
+            const acts=isManager()&&!isViewer()?'<td><button class="btn btn-red btn-sm" onclick="deleteSales(\''+r.id+'\')">&#128465;</button></td>':'';
+            return '<tr><td><strong>'+(r.branch?.name||'-')+'</strong></td><td>'+fmtNum(r.total_sales)+'</td><td style="color:#f56565">'+fmtNum(r.total_expenses)+'</td><td>'+fmtNum(r.depreciation||0)+'</td><td class="'+pClass+'">'+fmtNum(r.net_profit)+'</td><td>'+(r.notes||'-')+'</td>'+acts+'</tr>';
+        }).join('');
+    }
+    const totalS=salesData.reduce((s,r)=>s+(r.total_sales||0),0);
+    const totalE=salesData.reduce((s,r)=>s+(r.total_expenses||0),0);
+    const totalD=salesData.reduce((s,r)=>s+(r.depreciation||0),0);
+    const totalP=salesData.reduce((s,r)=>s+((r.net_profit)||0),0);
+    $('finTotalSales').textContent=fmtNum(totalS);$('finTotalExp').textContent=fmtNum(totalE);
+    $('finTotalDep').textContent=fmtNum(totalD);$('finNetProfit').textContent=fmtNum(totalP);
+    renderFinCharts();
+}
+function renderFinCharts(){
+    setTimeout(()=>{
+        const salesByBranch={};salesData.forEach(r=>{salesByBranch[r.branch?.name||'-']=r.total_sales||0;});
+        const c1=$('chartSales');if(c1){if(chSales)chSales.destroy();chSales=new Chart(c1,{type:'bar',data:{labels:Object.keys(salesByBranch),datasets:[{label:'المبيعات',data:Object.values(salesByBranch),backgroundColor:'rgba(72,187,120,.7)',borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});}
+        const pnlLabels=[],pnlSales=[],pnlExp=[],pnlDep=[];
+        salesData.forEach(r=>{pnlLabels.push(r.branch?.name||'-');pnlSales.push(r.total_sales||0);pnlExp.push(r.total_expenses||0);pnlDep.push(r.depreciation||0);});
+        const c2=$('chartPnl');if(c2){if(chPnl)chPnl.destroy();chPnl=new Chart(c2,{type:'bar',data:{labels:pnlLabels,datasets:[{label:'المبيعات',data:pnlSales,backgroundColor:'rgba(72,187,120,.7)',borderRadius:4},{label:'المصروفات',data:pnlExp,backgroundColor:'rgba(245,101,101,.7)',borderRadius:4},{label:'الإهلاك',data:pnlDep,backgroundColor:'rgba(237,137,54,.7)',borderRadius:4}]},options:{responsive:true,scales:{y:{beginAtZero:true}}}});}
+    },100);
+}
+function openAddSales(){
+    $('salesBranch').innerHTML=branches.filter(b=>!b.is_closed).map(b=>'<option value="'+b.id+'">'+b.name+'</option>').join('');
+    $('salesMonth').innerHTML='';for(let i=1;i<=12;i++){const o=document.createElement('option');o.value=i;o.textContent=monthAr(i);if(i===finMonth)o.selected=true;$('salesMonth').appendChild(o);}
+    $('salesYear').value=finYear;$('salesAmount').value='';$('salesExpenses').value='';$('salesDepreciation').value='0';$('salesNotes').value='';
+    openModal('salesModal');
+}
+async function saveSalesData(){
+    const branch_id=$('salesBranch').value,month=parseInt($('salesMonth').value),year=parseInt($('salesYear').value);
+    const total_sales=pNum($('salesAmount').value),total_expenses=pNum($('salesExpenses').value),depreciation=pNum($('salesDepreciation').value);
+    const notes=$('salesNotes').value.trim()||null;
+    if(!branch_id){toast('اختر الفرع','err');return;}
+    try{const{error}=await sb.from('branch_sales').insert({branch_id,month,year,total_sales,total_expenses,depreciation,notes,created_by:U.id});
+        if(error){if(error.message.includes('unique')||error.message.includes('duplicate'))toast('يوجد بيانات لهذا الفرع في نفس الشهر','err');else throw error;return;}
+        toast('تم الحفظ','ok');closeModal('salesModal');loadBranchSales();
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+async function deleteSales(id){if(!confirm('حذف بيانات المبيعات؟'))return;try{const{error}=await sb.from('branch_sales').delete().eq('id',id);if(error)throw error;toast('تم الحذف','ok');loadBranchSales();}catch(e){toast('خطأ: '+e.message,'err');}}
+
+// ====== FINANCIAL REPORTS (FILE UPLOADS) ======
+async function loadFinReports(){
+    const{data}=await sb.from('financial_reports').select('*, uploader:profiles!uploaded_by(full_name), branch:branches(name)').order('created_at',{ascending:false});
+    finReports=data||[];const list=$('reportList'),empty=$('reportEmpty');
+    if(finReports.length===0){list.innerHTML='';empty.style.display='block';return;}
+    empty.style.display='none';
+    list.innerHTML=finReports.map(r=>{
+        const typeLabel=finReportTypeAr(r.report_type);const ext=r.file_type||'pdf';
+        const extClass=ext==='pdf'?'file-pdf':(ext==='xlsx'||ext==='xls')?'file-xlsx':ext==='csv'?'file-csv':'file-pdf';
+        const delBtn=(isCEO()||isManager())&&!isViewer()?'<button class="btn btn-red btn-sm" onclick="deleteFinReport(\''+r.id+'\',\''+esc(r.file_url)+'\')">&#128465;</button>':'';
+        return '<div class="report-item"><div class="ri-info"><h4><span class="file-badge '+extClass+'">'+ext.toUpperCase()+'</span> '+r.title+'</h4><p>'+typeLabel+(r.branch?' | '+r.branch.name:' | جميع الفروع')+' | '+(r.uploader?.full_name||'-')+' | '+fmtDate(r.created_at)+'</p></div><div class="ri-acts"><a href="'+r.file_url+'" target="_blank" class="btn btn-main btn-sm">&#128196; فتح</a>'+delBtn+'</div></div>';
+    }).join('');
+}
+function openUploadReport(){
+    $('uploadTitle').value='';$('uploadType').value='pnl';$('uploadNotes').value='';$('uploadFile').value='';
+    $('uploadLabel').innerHTML='&#128196; اضغط لاختيار الملف<br><small>PDF, XLSX, XLS, CSV</small>';
+    $('uploadBranch').innerHTML='<option value="">جميع الفروع</option>'+branches.filter(b=>!b.is_closed).map(b=>'<option value="'+b.id+'">'+b.name+'</option>').join('');
+    openModal('uploadModal');
+}
+function onFileSelected(){const file=$('uploadFile').files[0];if(file){$('uploadLabel').innerHTML='&#9989; '+file.name+' ('+Math.round(file.size/1024)+' KB)';}}
+async function doUploadReport(){
+    const title=$('uploadTitle').value.trim(),report_type=$('uploadType').value,branch_id=$('uploadBranch').value||null;
+    const file=$('uploadFile').files[0],notes=$('uploadNotes').value.trim()||null;
+    if(!title){toast('أدخل عنوان التقرير','err');return;}if(!file){toast('اختر ملف للرفع','err');return;}
+    const ext=file.name.split('.').pop().toLowerCase();
+    if(!['pdf','xlsx','xls','csv'].includes(ext)){toast('نوع الملف غير مدعوم','err');return;}
+    try{const fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        const{error:upErr}=await sb.storage.from('reports').upload(fileName,file);if(upErr)throw upErr;
+        const{data:{publicUrl}}=sb.storage.from('reports').getPublicUrl(fileName);
+        const{error}=await sb.from('financial_reports').insert({title,report_type,branch_id,period_month:finMonth,period_year:finYear,file_url:publicUrl,file_name:file.name,file_type:ext,notes,uploaded_by:U.id});
+        if(error)throw error;toast('تم رفع التقرير','ok');closeModal('uploadModal');loadFinReports();
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+async function deleteFinReport(id,fileUrl){
+    if(!confirm('حذف التقرير؟'))return;
+    try{const parts=fileUrl.split('/');const fileName=parts[parts.length-1];
+        await sb.storage.from('reports').remove([decodeURIComponent(fileName)]);
+        const{error}=await sb.from('financial_reports').delete().eq('id',id);if(error)throw error;
+        toast('تم الحذف','ok');loadFinReports();
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+function finReportTypeAr(t){return{pnl:'أرباح وخسائر',expenses:'مصروفات',depreciation:'إهلاكات',sales:'مبيعات',other:'أخرى'}[t]||t;}
 </script>
 </body>
 </html>
