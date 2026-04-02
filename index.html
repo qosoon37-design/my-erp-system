@@ -6,6 +6,8 @@
 <title>ERP - نظام إدارة المؤسسات</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;color:#1a1a2e}
@@ -219,6 +221,21 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .report-card-detail .detail-row{padding:.4rem 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between}
 .report-card-detail .calc-row{background:#eef2ff;padding:.5rem .75rem;border-radius:8px;margin:.3rem 0;display:flex;justify-content:space-between;font-weight:600}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.export-btns{display:flex;gap:.4rem;flex-wrap:wrap}
+.export-btns .btn{font-size:.78rem;padding:.35rem .6rem}
+.comparison-controls{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem;padding:.75rem;background:#f0f2f5;border-radius:10px}
+.comparison-controls label{font-weight:600;font-size:.9rem}
+.comparison-controls select{padding:.4rem .6rem;border:2px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:.85rem}
+.comparison-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.comparison-table th{background:#1a1a2e;color:#fff;padding:.6rem .5rem;text-align:right;font-size:.8rem;white-space:nowrap}
+.comparison-table td{padding:.5rem;border-bottom:1px solid #eee;text-align:right}
+.comparison-table tr:hover{background:#f8f9fa}
+.comparison-table .row-label{font-weight:600;background:#f8f9fa;min-width:140px}
+.comparison-table .calc-cell{background:#eef2ff;font-weight:600}
+.comparison-table .total-cell{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-weight:700}
+.change-positive{color:#48bb78;font-weight:600;font-size:.78rem}
+.change-negative{color:#f56565;font-weight:600;font-size:.78rem}
+.sec-header-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
 @media(max-width:768px){
 .topbar{padding:.75rem 1rem}.topbar h1{font-size:1rem}
 .tab{padding:.75rem 1rem;font-size:.85rem}
@@ -238,7 +255,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div id="loginScreen" class="fullscreen" style="display:none">
 <div class="card-box">
 <h2>&#127970; نظام إدارة المؤسسات</h2>
-<p class="sub">ERP System v6.1</p>
+<p class="sub">ERP System v6.2</p>
 <div class="field"><label>البريد الإلكتروني</label><input id="lEmail" type="email" placeholder="user@company.com" dir="ltr"></div>
 <div class="field"><label>كلمة المرور</label><input id="lPass" type="password" placeholder="••••••••"></div>
 <div id="loginErr" class="err-msg" style="display:none"></div>
@@ -372,7 +389,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="chart-wrap"><h4>الأرباح والخسائر</h4><canvas id="chartPnl"></canvas></div>
 </div>
 <div class="sec">
-<h3><span>التقارير المالية الشهرية</span><div class="btns" id="finReportAdminBtns" style="display:none"><button class="btn btn-teal btn-sm" onclick="openFinReport()">+ تقرير مالي جديد</button></div></h3>
+<h3><div class="sec-header-row"><span>التقارير المالية الشهرية</span><div class="btns" id="finReportAdminBtns" style="display:none"><button class="btn btn-teal btn-sm" onclick="openFinReport()">+ تقرير مالي جديد</button></div><div class="export-btns" id="bulkExportBtns" style="display:none"><button class="btn btn-green btn-sm" onclick="exportAllReportsExcel()">&#128202; تصدير Excel</button><button class="btn btn-red btn-sm" onclick="exportAllReportsPDF()">&#128196; تصدير PDF</button></div></div></h3>
 <div id="monthlyReportsList"></div>
 <div id="monthlyReportsEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد تقارير مالية</div>
 </div>
@@ -385,6 +402,18 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <h3><span>التقارير المرفوعة</span><div class="btns" id="reportAdminBtns" style="display:none"><button class="btn btn-main btn-sm" onclick="openUploadReport()">+ رفع تقرير</button></div></h3>
 <div class="report-list" id="reportList"></div>
 <div id="reportEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد تقارير مرفوعة</div>
+</div>
+<div class="sec" id="comparisonSection">
+<h3><div class="sec-header-row"><span>&#128200; مقارنة الأشهر</span><div class="export-btns"><button class="btn btn-green btn-sm" onclick="exportComparisonExcel()">&#128202; تصدير Excel</button><button class="btn btn-red btn-sm" onclick="exportComparisonPDF()">&#128196; تصدير PDF</button></div></div></h3>
+<div class="comparison-controls">
+<label>الفرع:</label>
+<select id="compBranch" onchange="loadComparison()"><option value="">جميع الفروع</option></select>
+<label>عدد الأشهر:</label>
+<select id="compMonths" onchange="loadComparison()"><option value="3">3 أشهر</option><option value="6" selected>6 أشهر</option><option value="12">12 شهر</option></select>
+</div>
+<div style="overflow-x:auto"><table class="comparison-table" id="compTable"><thead id="compTableHead"></thead><tbody id="compTableBody"></tbody></table></div>
+<div id="compEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد بيانات كافية للمقارنة</div>
+<div class="chart-wrap" style="margin-top:1.5rem"><h4>&#128200; اتجاهات الأرباح والمبيعات</h4><canvas id="chartComparison"></canvas></div>
 </div>
 </div>
 
@@ -655,6 +684,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <script>
 let sb=null,U=null,branches=[],selBranchId=null,selBranchIdx=-1,allReqs=[],sentReqs=[],receivedReqs=[],allEmpsFlat=[],delEmpId=null,trEmpId=null,fwdReqId=null,ch1=null,ch2=null;
 let payrollMonth,payrollYear,finMonth,finYear,salesData=[],finReports=[],chSales=null,chPnl=null;
+let monthlyReportsData=[],chComparison=null;
 let reqViewMode='received';
 function isManager(){return U&&(U.role==='ceo'||U.role==='admin');}
 function isCEO(){return U&&U.role==='ceo';}
@@ -1307,6 +1337,8 @@ function changeFinMonth(delta){finMonth+=delta;if(finMonth>12){finMonth=1;finYea
 async function loadFinance(){
     $('finMonthLabel').textContent=monthAr(finMonth)+' '+finYear;
     if(isManager()&&!isViewer()){$('salesAdminBtns').style.display='flex';$('reportAdminBtns').style.display='flex';$('finReportAdminBtns').style.display='flex';$('salesActsHead').style.display='';}
+    // Populate comparison branch filter
+    $('compBranch').innerHTML='<option value="">جميع الفروع</option>'+branches.filter(b=>!b.is_closed).map(b=>'<option value="'+b.id+'">'+b.name+'</option>').join('');
     await Promise.all([loadBranchSales(),loadFinReports(),loadMonthlyReports()]);
 }
 async function loadBranchSales(){
@@ -1461,15 +1493,16 @@ async function saveFinReport(){
 }
 async function loadMonthlyReports(){
     const{data}=await sb.from('monthly_reports').select('*, branch:branches(name), creator:profiles!created_by(full_name)').order('period_start',{ascending:false});
-    const reports=data||[];const list=$('monthlyReportsList'),empty=$('monthlyReportsEmpty');
-    if(reports.length===0){list.innerHTML='';empty.style.display='block';return;}
-    empty.style.display='none';
-    list.innerHTML=reports.map(r=>{
+    monthlyReportsData=data||[];const list=$('monthlyReportsList'),empty=$('monthlyReportsEmpty');
+    if(monthlyReportsData.length===0){list.innerHTML='';empty.style.display='block';$('bulkExportBtns').style.display='none';return;}
+    empty.style.display='none';$('bulkExportBtns').style.display='flex';
+    list.innerHTML=monthlyReportsData.map((r,idx)=>{
         const netSales=r.total_sales-r.tax;const grossProfit=netSales-r.cogs;
         const profitBeforeOp=grossProfit-r.expenses;const opAmount=profitBeforeOp*r.operator_percentage/100;
         const netProfit=profitBeforeOp-opAmount;const margin=netSales>0?(grossProfit/netSales*100):0;
         const delBtn=isManager()&&!isViewer()?'<button class="btn btn-red btn-sm" onclick="deleteMonthlyReport(\''+r.id+'\')">&#128465;</button>':'';
-        return '<div class="report-card-detail"><h4><span>'+(r.branch?.name||'كلي')+' | '+r.period_start+' إلى '+r.period_end+'</span><span>'+delBtn+'</span></h4>'+
+        const exportBtns='<div class="export-btns" style="display:inline-flex;margin-right:.5rem"><button class="btn btn-green btn-sm" onclick="exportReportExcel('+idx+')" title="Excel">&#128202;</button><button class="btn btn-red btn-sm" onclick="exportReportPDF('+idx+')" title="PDF">&#128196;</button></div>';
+        return '<div class="report-card-detail"><h4><span>'+(r.branch?.name||'كلي')+' | '+r.period_start+' إلى '+r.period_end+'</span><span>'+exportBtns+delBtn+'</span></h4>'+
         '<div class="detail-row"><span class="detail-label">إجمالي المبيعات بعد المرتجع</span><span class="detail-value">'+fmtNum(r.total_sales)+'</span></div>'+
         '<div class="detail-row"><span class="detail-label">الضريبة</span><span class="detail-value">'+fmtNum(r.tax)+'</span></div>'+
         '<div class="calc-row" style="background:#eef2ff;padding:.4rem .75rem;border-radius:6px;margin:.2rem 0"><span>صافي المبيعات</span><span>'+fmtNum(netSales)+'</span></div>'+
@@ -1483,8 +1516,268 @@ async function loadMonthlyReports(){
         (r.notes?'<div class="detail-row"><span class="detail-label">ملاحظات</span><span class="detail-value">'+r.notes+'</span></div>':'')+
         '<div class="detail-row" style="border:none;color:#888;font-size:.8rem"><span>بواسطة: '+(r.creator?.full_name||'-')+'</span><span>'+fmtDate(r.created_at)+'</span></div></div>';
     }).join('');
+    loadComparison();
 }
 async function deleteMonthlyReport(id){if(!confirm('حذف التقرير المالي؟'))return;try{const{error}=await sb.from('monthly_reports').delete().eq('id',id);if(error)throw error;toast('تم الحذف','ok');loadMonthlyReports();}catch(e){toast('خطأ: '+e.message,'err');}}
+
+// ====== P&L CALCULATION HELPER ======
+function calcPnl(r){
+    const netSales=(r.total_sales||0)-(r.tax||0);
+    const grossProfit=netSales-(r.cogs||0);
+    const profitBeforeOp=grossProfit-(r.expenses||0);
+    const opPct=r.operator_percentage||30;
+    const opAmount=profitBeforeOp*opPct/100;
+    const netProfit=profitBeforeOp-opAmount;
+    const margin=netSales>0?(grossProfit/netSales*100):0;
+    return{netSales,grossProfit,profitBeforeOp,opAmount,netProfit,margin,opPct};
+}
+
+// ====== PDF EXPORT ======
+function buildPdfHtml(r,pnl){
+    return '<div dir="rtl" style="font-family:Segoe UI,Tahoma,sans-serif;padding:20px;color:#1a1a2e">'+
+    '<div style="text-align:center;margin-bottom:20px;border-bottom:3px solid #667eea;padding-bottom:15px">'+
+    '<h2 style="color:#667eea;margin:0 0 5px">تقرير الأرباح والخسائر</h2>'+
+    '<p style="color:#888;margin:0">'+(r.branch?.name||'كلي - جميع الفروع')+' | '+r.period_start+' إلى '+r.period_end+'</p></div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:14px">'+
+    '<tr><td style="padding:10px;border-bottom:1px solid #eee">إجمالي المبيعات بعد المرتجع</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:left;font-weight:600">'+fmtNum(r.total_sales)+'</td></tr>'+
+    '<tr><td style="padding:10px;border-bottom:1px solid #eee">الضريبة</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:left;font-weight:600">'+fmtNum(r.tax)+'</td></tr>'+
+    '<tr style="background:#eef2ff"><td style="padding:10px;font-weight:700">صافي المبيعات</td><td style="padding:10px;text-align:left;font-weight:700">'+fmtNum(pnl.netSales)+'</td></tr>'+
+    '<tr><td style="padding:10px;border-bottom:1px solid #eee">تكلفة البضاعة المباعة</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:left;font-weight:600">'+fmtNum(r.cogs)+'</td></tr>'+
+    '<tr style="background:#d1fae5"><td style="padding:10px;font-weight:700">الربح قبل المصروفات</td><td style="padding:10px;text-align:left;font-weight:700">'+fmtNum(pnl.grossProfit)+'</td></tr>'+
+    '<tr><td style="padding:10px;border-bottom:1px solid #eee">المصروفات</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:left;font-weight:600;color:#f56565">'+fmtNum(r.expenses)+'</td></tr>'+
+    '<tr style="background:#fef3c7"><td style="padding:10px;font-weight:700">الربح قبل نسبة المشغل</td><td style="padding:10px;text-align:left;font-weight:700">'+fmtNum(pnl.profitBeforeOp)+'</td></tr>'+
+    '<tr><td style="padding:10px;border-bottom:1px solid #eee">نسبة المشغل ('+pnl.opPct+'%)</td><td style="padding:10px;border-bottom:1px solid #eee;text-align:left;font-weight:600">'+fmtNum(pnl.opAmount)+'</td></tr>'+
+    '<tr style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff"><td style="padding:12px;font-weight:700;font-size:15px">صافي الربح</td><td style="padding:12px;text-align:left;font-weight:700;font-size:15px">'+fmtNum(pnl.netProfit)+' ر.س</td></tr>'+
+    '<tr style="background:#e0f2f1"><td style="padding:10px;font-weight:700">هامش الربح الإجمالي</td><td style="padding:10px;text-align:left;font-weight:700;color:#38b2ac">'+pnl.margin.toFixed(2)+'%</td></tr>'+
+    '</table>'+
+    (r.notes?'<div style="margin-top:15px;padding:10px;background:#f8f9fa;border-radius:8px"><strong>ملاحظات:</strong> '+r.notes+'</div>':'')+
+    '<div style="margin-top:20px;text-align:center;color:#888;font-size:12px;border-top:1px solid #eee;padding-top:10px">تم إنشاء التقرير بواسطة: '+(r.creator?.full_name||'-')+' | '+fmtDate(r.created_at)+'</div></div>';
+}
+function exportReportPDF(idx){
+    const r=monthlyReportsData[idx];if(!r)return;
+    const pnl=calcPnl(r);
+    const div=document.createElement('div');div.innerHTML=buildPdfHtml(r,pnl);div.style.position='absolute';div.style.left='-9999px';document.body.appendChild(div);
+    const fname='تقرير-مالي-'+(r.branch?.name||'كلي')+'-'+r.period_start+'.pdf';
+    html2pdf().set({margin:10,filename:fname,html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(div).save().then(()=>document.body.removeChild(div));
+}
+function exportAllReportsPDF(){
+    if(monthlyReportsData.length===0){toast('لا توجد تقارير للتصدير','err');return;}
+    let html='';
+    monthlyReportsData.forEach((r,i)=>{
+        const pnl=calcPnl(r);
+        html+=buildPdfHtml(r,pnl);
+        if(i<monthlyReportsData.length-1)html+='<div style="page-break-after:always"></div>';
+    });
+    const div=document.createElement('div');div.innerHTML=html;div.style.position='absolute';div.style.left='-9999px';document.body.appendChild(div);
+    html2pdf().set({margin:10,filename:'جميع-التقارير-المالية.pdf',html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(div).save().then(()=>document.body.removeChild(div));
+}
+
+// ====== EXCEL EXPORT ======
+function buildReportRows(r){
+    const pnl=calcPnl(r);
+    return[
+        ['تقرير الأرباح والخسائر'],
+        ['الفرع',r.branch?.name||'كلي - جميع الفروع'],
+        ['الفترة',r.period_start+' إلى '+r.period_end],
+        [],
+        ['البند','المبلغ'],
+        ['إجمالي المبيعات بعد المرتجع',r.total_sales],
+        ['الضريبة',r.tax],
+        ['صافي المبيعات',pnl.netSales],
+        ['تكلفة البضاعة المباعة',r.cogs],
+        ['الربح قبل المصروفات',pnl.grossProfit],
+        ['المصروفات',r.expenses],
+        ['الربح قبل نسبة المشغل',pnl.profitBeforeOp],
+        ['نسبة المشغل ('+pnl.opPct+'%)',pnl.opAmount],
+        ['صافي الربح',pnl.netProfit],
+        ['هامش الربح الإجمالي',pnl.margin.toFixed(2)+'%'],
+        [],
+        ['ملاحظات',r.notes||'-'],
+        ['بواسطة',r.creator?.full_name||'-']
+    ];
+}
+function exportReportExcel(idx){
+    const r=monthlyReportsData[idx];if(!r)return;
+    const rows=buildReportRows(r);
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:35},{wch:25}];
+    ws['!RTL']=true;
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'تقرير مالي');
+    XLSX.writeFile(wb,'تقرير-مالي-'+(r.branch?.name||'كلي')+'-'+r.period_start+'.xlsx');
+}
+function exportAllReportsExcel(){
+    if(monthlyReportsData.length===0){toast('لا توجد تقارير للتصدير','err');return;}
+    const wb=XLSX.utils.book_new();
+    monthlyReportsData.forEach((r,i)=>{
+        const rows=buildReportRows(r);
+        const ws=XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols']=[{wch:35},{wch:25}];
+        ws['!RTL']=true;
+        const sheetName=((r.branch?.name||'كلي')+' '+r.period_start).substring(0,31);
+        XLSX.utils.book_append_sheet(wb,ws,sheetName);
+    });
+    XLSX.writeFile(wb,'جميع-التقارير-المالية.xlsx');
+}
+
+// ====== COMPARISON VIEW ======
+function loadComparison(){
+    const branchId=$('compBranch').value;
+    const monthCount=parseInt($('compMonths').value)||6;
+    // Filter reports
+    let reports=monthlyReportsData.slice();
+    if(branchId)reports=reports.filter(r=>r.branch_id===branchId);
+    // Sort by period_start ascending
+    reports.sort((a,b)=>new Date(a.period_start)-new Date(b.period_start));
+    // Take last N months
+    reports=reports.slice(-monthCount);
+    const tHead=$('compTableHead'),tBody=$('compTableBody'),empty=$('compEmpty'),table=$('compTable');
+    if(reports.length===0){tHead.innerHTML='';tBody.innerHTML='';empty.style.display='block';table.style.display='none';renderComparisonChart([]);return;}
+    empty.style.display='none';table.style.display='';
+    // Build header
+    let headHtml='<tr><th>البند</th>';
+    reports.forEach(r=>{
+        const d=new Date(r.period_start);
+        headHtml+='<th>'+monthAr(d.getMonth()+1)+' '+d.getFullYear()+'</th>';
+    });
+    if(reports.length>=2)headHtml+='<th>التغيير %</th>';
+    headHtml+='</tr>';
+    tHead.innerHTML=headHtml;
+    // Compute P&L for each report
+    const pnls=reports.map(r=>calcPnl(r));
+    // Row definitions
+    const rowDefs=[
+        {label:'إجمالي المبيعات',key:'total_sales',raw:true},
+        {label:'الضريبة',key:'tax',raw:true},
+        {label:'صافي المبيعات',key:'netSales',calc:true},
+        {label:'تكلفة البضاعة المباعة',key:'cogs',raw:true},
+        {label:'الربح قبل المصروفات',key:'grossProfit',calc:true},
+        {label:'المصروفات',key:'expenses',raw:true},
+        {label:'الربح قبل نسبة المشغل',key:'profitBeforeOp',calc:true},
+        {label:'نسبة المشغل',key:'opAmount',calc:true},
+        {label:'صافي الربح',key:'netProfit',calc:true,total:true},
+        {label:'هامش الربح %',key:'margin',calc:true,pct:true}
+    ];
+    let bodyHtml='';
+    rowDefs.forEach(rd=>{
+        const cellClass=rd.calc?(rd.total?'total-cell':'calc-cell'):'';
+        bodyHtml+='<tr><td class="row-label">'+rd.label+'</td>';
+        const vals=[];
+        reports.forEach((r,i)=>{
+            const val=rd.raw?r[rd.key]:pnls[i][rd.key];
+            vals.push(val);
+            const display=rd.pct?(val||0).toFixed(2)+'%':fmtNum(val);
+            bodyHtml+='<td class="'+cellClass+'">'+display+'</td>';
+        });
+        if(reports.length>=2){
+            const prev=vals[vals.length-2],curr=vals[vals.length-1];
+            if(prev&&prev!==0){
+                const change=((curr-prev)/Math.abs(prev)*100).toFixed(1);
+                const cls=parseFloat(change)>=0?'change-positive':'change-negative';
+                const arrow=parseFloat(change)>=0?'&#9650;':'&#9660;';
+                bodyHtml+='<td class="'+cls+'">'+arrow+' '+change+'%</td>';
+            } else {bodyHtml+='<td>-</td>';}
+        }
+        bodyHtml+='</tr>';
+    });
+    tBody.innerHTML=bodyHtml;
+    renderComparisonChart(reports);
+}
+function renderComparisonChart(reports){
+    setTimeout(()=>{
+        const c=$('chartComparison');if(!c)return;if(chComparison)chComparison.destroy();
+        if(reports.length===0){chComparison=null;return;}
+        const labels=reports.map(r=>{const d=new Date(r.period_start);return monthAr(d.getMonth()+1)+' '+d.getFullYear();});
+        const pnls=reports.map(r=>calcPnl(r));
+        chComparison=new Chart(c,{type:'line',data:{labels,datasets:[
+            {label:'صافي المبيعات',data:pnls.map(p=>p.netSales),borderColor:'#667eea',backgroundColor:'rgba(102,126,234,.1)',fill:true,tension:.3,borderWidth:2},
+            {label:'الربح قبل المصروفات',data:pnls.map(p=>p.grossProfit),borderColor:'#48bb78',backgroundColor:'rgba(72,187,120,.1)',fill:true,tension:.3,borderWidth:2},
+            {label:'صافي الربح',data:pnls.map(p=>p.netProfit),borderColor:'#9f7aea',backgroundColor:'rgba(159,122,234,.1)',fill:true,tension:.3,borderWidth:2},
+            {label:'المصروفات',data:reports.map(r=>r.expenses),borderColor:'#f56565',backgroundColor:'rgba(245,101,101,.1)',fill:true,tension:.3,borderWidth:2}
+        ]},options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}});
+    },100);
+}
+
+// ====== COMPARISON EXPORT ======
+function exportComparisonExcel(){
+    const branchId=$('compBranch').value;
+    const monthCount=parseInt($('compMonths').value)||6;
+    let reports=monthlyReportsData.slice();
+    if(branchId)reports=reports.filter(r=>r.branch_id===branchId);
+    reports.sort((a,b)=>new Date(a.period_start)-new Date(b.period_start));
+    reports=reports.slice(-monthCount);
+    if(reports.length===0){toast('لا توجد بيانات للتصدير','err');return;}
+    const pnls=reports.map(r=>calcPnl(r));
+    const header=['البند'];
+    reports.forEach(r=>{const d=new Date(r.period_start);header.push(monthAr(d.getMonth()+1)+' '+d.getFullYear());});
+    if(reports.length>=2)header.push('التغيير %');
+    const rowDefs=[
+        {label:'إجمالي المبيعات',key:'total_sales',raw:true},
+        {label:'الضريبة',key:'tax',raw:true},
+        {label:'صافي المبيعات',key:'netSales'},
+        {label:'تكلفة البضاعة المباعة',key:'cogs',raw:true},
+        {label:'الربح قبل المصروفات',key:'grossProfit'},
+        {label:'المصروفات',key:'expenses',raw:true},
+        {label:'الربح قبل نسبة المشغل',key:'profitBeforeOp'},
+        {label:'نسبة المشغل',key:'opAmount'},
+        {label:'صافي الربح',key:'netProfit'},
+        {label:'هامش الربح %',key:'margin',pct:true}
+    ];
+    const rows=[header];
+    rowDefs.forEach(rd=>{
+        const row=[rd.label];
+        const vals=[];
+        reports.forEach((r,i)=>{const v=rd.raw?r[rd.key]:pnls[i][rd.key];vals.push(v);row.push(rd.pct?(v||0).toFixed(2)+'%':v);});
+        if(reports.length>=2){const prev=vals[vals.length-2],curr=vals[vals.length-1];row.push(prev?((curr-prev)/Math.abs(prev)*100).toFixed(1)+'%':'-');}
+        rows.push(row);
+    });
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!RTL']=true;
+    const cols=[{wch:30}];reports.forEach(()=>cols.push({wch:18}));if(reports.length>=2)cols.push({wch:12});
+    ws['!cols']=cols;
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'مقارنة الأشهر');
+    XLSX.writeFile(wb,'مقارنة-الأشهر.xlsx');
+}
+function exportComparisonPDF(){
+    const branchId=$('compBranch').value;
+    const monthCount=parseInt($('compMonths').value)||6;
+    let reports=monthlyReportsData.slice();
+    if(branchId)reports=reports.filter(r=>r.branch_id===branchId);
+    reports.sort((a,b)=>new Date(a.period_start)-new Date(b.period_start));
+    reports=reports.slice(-monthCount);
+    if(reports.length===0){toast('لا توجد بيانات للتصدير','err');return;}
+    const pnls=reports.map(r=>calcPnl(r));
+    let html='<div dir="rtl" style="font-family:Segoe UI,Tahoma,sans-serif;padding:15px;color:#1a1a2e">';
+    html+='<h2 style="text-align:center;color:#667eea;margin-bottom:15px">مقارنة التقارير المالية</h2>';
+    html+='<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    html+='<tr style="background:#1a1a2e;color:#fff"><th style="padding:8px;text-align:right">البند</th>';
+    reports.forEach(r=>{const d=new Date(r.period_start);html+='<th style="padding:8px;text-align:right">'+monthAr(d.getMonth()+1)+' '+d.getFullYear()+'</th>';});
+    if(reports.length>=2)html+='<th style="padding:8px;text-align:right">التغيير %</th>';
+    html+='</tr>';
+    const rowDefs=[
+        {label:'إجمالي المبيعات',key:'total_sales',raw:true},
+        {label:'الضريبة',key:'tax',raw:true},
+        {label:'صافي المبيعات',key:'netSales',bg:'#eef2ff'},
+        {label:'تكلفة البضاعة',key:'cogs',raw:true},
+        {label:'الربح قبل المصروفات',key:'grossProfit',bg:'#d1fae5'},
+        {label:'المصروفات',key:'expenses',raw:true},
+        {label:'الربح قبل المشغل',key:'profitBeforeOp',bg:'#fef3c7'},
+        {label:'نسبة المشغل',key:'opAmount'},
+        {label:'صافي الربح',key:'netProfit',bg:'#e0e7ff',bold:true},
+        {label:'هامش الربح %',key:'margin',pct:true}
+    ];
+    rowDefs.forEach(rd=>{
+        const bg=rd.bg?'background:'+rd.bg+';':'';const fw=rd.bold?'font-weight:700;':'';
+        html+='<tr style="'+bg+'"><td style="padding:7px;border-bottom:1px solid #eee;'+fw+'">'+rd.label+'</td>';
+        const vals=[];
+        reports.forEach((r,i)=>{const v=rd.raw?r[rd.key]:pnls[i][rd.key];vals.push(v);html+='<td style="padding:7px;border-bottom:1px solid #eee;text-align:left;'+fw+'">'+(rd.pct?(v||0).toFixed(2)+'%':fmtNum(v))+'</td>';});
+        if(reports.length>=2){const prev=vals[vals.length-2],curr=vals[vals.length-1];const chg=prev?((curr-prev)/Math.abs(prev)*100).toFixed(1)+'%':'-';html+='<td style="padding:7px;border-bottom:1px solid #eee;text-align:left">'+chg+'</td>';}
+        html+='</tr>';
+    });
+    html+='</table></div>';
+    const div=document.createElement('div');div.innerHTML=html;div.style.position='absolute';div.style.left='-9999px';document.body.appendChild(div);
+    html2pdf().set({margin:8,filename:'مقارنة-الأشهر.pdf',html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'}}).from(div).save().then(()=>document.body.removeChild(div));
+}
 </script>
 </body>
 </html>
