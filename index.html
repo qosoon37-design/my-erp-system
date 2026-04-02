@@ -210,6 +210,15 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 .sales-table tr:hover{background:#f8f9fa}
 .profit-positive{color:#48bb78;font-weight:700}
 .profit-negative{color:#f56565;font-weight:700}
+.perm-grid{display:grid;gap:.5rem;margin-top:.5rem}
+.perm-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:#f8f9fa;border-radius:10px;border:1px solid #e8e8e8}
+.perm-item input[type=checkbox]{width:20px;height:20px;accent-color:#667eea;cursor:pointer}
+.perm-item label{font-weight:600;font-size:.9rem;cursor:pointer;flex:1}
+.report-card-detail{background:#f8f9fa;border-radius:12px;padding:1.25rem;border:1px solid #e8e8e8;margin-bottom:1rem}
+.report-card-detail h4{font-size:1rem;color:#667eea;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center}
+.report-card-detail .detail-row{padding:.4rem 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between}
+.report-card-detail .calc-row{background:#eef2ff;padding:.5rem .75rem;border-radius:8px;margin:.3rem 0;display:flex;justify-content:space-between;font-weight:600}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 @media(max-width:768px){
 .topbar{padding:.75rem 1rem}.topbar h1{font-size:1rem}
 .tab{padding:.75rem 1rem;font-size:.85rem}
@@ -229,7 +238,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div id="loginScreen" class="fullscreen" style="display:none">
 <div class="card-box">
 <h2>&#127970; نظام إدارة المؤسسات</h2>
-<p class="sub">ERP System v6.0</p>
+<p class="sub">ERP System v6.1</p>
 <div class="field"><label>البريد الإلكتروني</label><input id="lEmail" type="email" placeholder="user@company.com" dir="ltr"></div>
 <div class="field"><label>كلمة المرور</label><input id="lPass" type="password" placeholder="••••••••"></div>
 <div id="loginErr" class="err-msg" style="display:none"></div>
@@ -257,13 +266,13 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 </div>
 </div>
 <div class="tabs" id="tabsBar">
-<div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">&#128202; لوحة التحكم</div>
-<div class="tab" data-tab="branches" onclick="switchTab('branches')">&#127807; الفروع والموظفين</div>
-<div class="tab" data-tab="requests" onclick="switchTab('requests')">&#128221; الطلبات</div>
+<div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')" id="tabDashboard">&#128202; لوحة التحكم</div>
+<div class="tab" data-tab="branches" onclick="switchTab('branches')" id="tabBranches">&#127807; الفروع والموظفين</div>
+<div class="tab" data-tab="requests" onclick="switchTab('requests')" id="tabRequests">&#128221; الطلبات</div>
 <div class="tab" data-tab="salaries" onclick="switchTab('salaries')" id="tabSalaries" style="display:none">&#128176; الرواتب</div>
-<div class="tab" data-tab="reports" onclick="switchTab('reports')">&#128200; التقارير</div>
+<div class="tab" data-tab="reports" onclick="switchTab('reports')" id="tabReports">&#128200; التقارير</div>
 <div class="tab" data-tab="finance" onclick="switchTab('finance')" id="tabFinance" style="display:none">&#128178; المالية</div>
-<div class="tab" data-tab="orgchart" onclick="switchTab('orgchart')">&#127963; الهيكل التنظيمي</div>
+<div class="tab" data-tab="orgchart" onclick="switchTab('orgchart')" id="tabOrgchart">&#127963; الهيكل التنظيمي</div>
 <div class="tab" data-tab="users" onclick="switchTab('users')" id="tabUsers" style="display:none">&#128101; المستخدمين</div>
 <div class="tab" data-tab="myprofile" onclick="switchTab('myprofile')" id="tabMyProfile" style="display:none">&#128100; ملفي</div>
 </div>
@@ -363,6 +372,11 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div class="chart-wrap"><h4>الأرباح والخسائر</h4><canvas id="chartPnl"></canvas></div>
 </div>
 <div class="sec">
+<h3><span>التقارير المالية الشهرية</span><div class="btns" id="finReportAdminBtns" style="display:none"><button class="btn btn-teal btn-sm" onclick="openFinReport()">+ تقرير مالي جديد</button></div></h3>
+<div id="monthlyReportsList"></div>
+<div id="monthlyReportsEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد تقارير مالية</div>
+</div>
+<div class="sec">
 <h3><span>مبيعات الفروع</span><div class="btns" id="salesAdminBtns" style="display:none"><button class="btn btn-main btn-sm" onclick="openAddSales()">+ إضافة بيانات مبيعات</button></div></h3>
 <div style="overflow-x:auto"><table class="sales-table"><thead><tr><th>الفرع</th><th>المبيعات</th><th>المصروفات</th><th>الإهلاك</th><th>صافي الربح</th><th>ملاحظات</th><th id="salesActsHead" style="display:none">إجراءات</th></tr></thead><tbody id="salesBody"></tbody></table></div>
 <div id="salesEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا توجد بيانات مبيعات لهذا الشهر</div>
@@ -385,7 +399,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 <div id="page-users" style="display:none">
 <div class="sec">
 <h3>إدارة المستخدمين</h3>
-<table class="users-table"><thead><tr><th>الاسم</th><th>الدور الحالي</th><th>تغيير الدور</th></tr></thead><tbody id="usersBody"></tbody></table>
+<table class="users-table"><thead><tr><th>الاسم</th><th>الدور الحالي</th><th>تغيير الدور</th><th>الصلاحيات</th></tr></thead><tbody id="usersBody"></tbody></table>
 <div id="usersEmpty" style="display:none;text-align:center;padding:2rem;color:#888">لا يوجد مستخدمين</div>
 </div>
 </div>
@@ -600,6 +614,44 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 </div>
 </div>
 
+<div class="modal-bg" id="finReportModal">
+<div class="modal-box" style="max-width:650px">
+<div class="modal-head" style="background:linear-gradient(135deg,#38b2ac,#2c7a7b)"><h3>تقرير مالي شهري</h3><button class="modal-close" onclick="closeModal('finReportModal')">&times;</button></div>
+<div class="modal-body">
+<div class="field"><label>الفرع</label><select id="frBranch"><option value="">كلي (جميع الفروع)</option></select></div>
+<div class="two-col">
+<div class="field"><label>من تاريخ</label><input id="frStart" type="date" dir="ltr"></div>
+<div class="field"><label>إلى تاريخ</label><input id="frEnd" type="date" dir="ltr"></div>
+</div>
+<div class="field"><label>إجمالي المبيعات بعد المرتجع</label><input id="frSales" type="text" inputmode="decimal" placeholder="0" dir="ltr" oninput="calcFinReport()"></div>
+<div class="field"><label>الضريبة</label><input id="frTax" type="text" inputmode="decimal" placeholder="0" dir="ltr" oninput="calcFinReport()"></div>
+<div class="calc-row" style="background:#eef2ff;padding:.5rem .75rem;border-radius:8px;margin:.5rem 0;display:flex;justify-content:space-between;font-weight:600"><span>صافي المبيعات</span><span id="frNetSales">0</span></div>
+<div class="field"><label>تكلفة البضاعة المباعة</label><input id="frCogs" type="text" inputmode="decimal" placeholder="0" dir="ltr" oninput="calcFinReport()"></div>
+<div class="calc-row" style="background:#d1fae5;padding:.5rem .75rem;border-radius:8px;margin:.5rem 0;display:flex;justify-content:space-between;font-weight:600"><span>الربح قبل المصروفات</span><span id="frGrossProfit">0</span></div>
+<div class="field"><label>المصروفات</label><input id="frExpenses" type="text" inputmode="decimal" placeholder="0" dir="ltr" oninput="calcFinReport()"></div>
+<div class="calc-row" style="background:#fef3c7;padding:.5rem .75rem;border-radius:8px;margin:.5rem 0;display:flex;justify-content:space-between;font-weight:600"><span>الربح قبل نسبة المشغل</span><span id="frProfitBeforeOp">0</span></div>
+<div class="field"><label>نسبة المشغل % (قابل للتغيير)</label><input id="frOpPct" type="text" inputmode="decimal" value="30" dir="ltr" oninput="calcFinReport()"></div>
+<div class="calc-row" style="background:#e0e7ff;padding:.5rem .75rem;border-radius:8px;margin:.5rem 0;display:flex;justify-content:space-between;font-weight:600"><span>نسبة المشغل (المبلغ)</span><span id="frOpAmount">0</span></div>
+<div class="net-display"><div class="net-lbl">صافي الربح</div><div class="net-val" id="frNetProfit">0</div></div>
+<div class="calc-row" style="background:#e0f2f1;padding:.5rem .75rem;border-radius:8px;margin:.5rem 0;display:flex;justify-content:space-between;font-weight:600"><span>هامش الربح الإجمالي</span><span id="frMargin">0%</span></div>
+<div class="field"><label>ملاحظات</label><textarea id="frNotes" placeholder="ملاحظات..."></textarea></div>
+</div>
+<div class="modal-foot"><button class="btn btn-teal btn-sm" onclick="saveFinReport()">حفظ</button><button class="btn btn-gray btn-sm" onclick="closeModal('finReportModal')">إلغاء</button></div>
+</div>
+</div>
+
+<div class="modal-bg" id="permModal">
+<div class="modal-box">
+<div class="modal-head" style="background:linear-gradient(135deg,#9f7aea,#805ad5)"><h3 id="permTitle">صلاحيات المستخدم</h3><button class="modal-close" onclick="closeModal('permModal')">&times;</button></div>
+<div class="modal-body">
+<input type="hidden" id="permUserId">
+<p style="margin-bottom:1rem;color:#888;font-size:.9rem">حدد الصلاحيات المتاحة لهذا المستخدم:</p>
+<div class="perm-grid" id="permChecks"></div>
+</div>
+<div class="modal-foot"><button class="btn btn-main btn-sm" onclick="savePermissions()">حفظ الصلاحيات</button><button class="btn btn-gray btn-sm" onclick="closeModal('permModal')">إلغاء</button></div>
+</div>
+</div>
+
 <script>
 let sb=null,U=null,branches=[],selBranchId=null,selBranchIdx=-1,allReqs=[],sentReqs=[],receivedReqs=[],allEmpsFlat=[],delEmpId=null,trEmpId=null,fwdReqId=null,ch1=null,ch2=null;
 let payrollMonth,payrollYear,finMonth,finYear,salesData=[],finReports=[],chSales=null,chPnl=null;
@@ -613,6 +665,9 @@ const SB_URL='https://yyrwflasaracjbqlgneq.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5cndmbGFzYXJhY2picWxnbmVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTkxMDQsImV4cCI6MjA5MDQzNTEwNH0.vNJkWAl5AAmdEOP_MHicRpMTYBSn3CHVkH6RHvgLPh8';
 
 const REQ_TYPES={vacation:{label:'إجازة',css:'rtype-vacation'},advance:{label:'سلفة',css:'rtype-advance'},complaint:{label:'شكوى',css:'rtype-complaint'},suggestion:{label:'اقتراح',css:'rtype-suggestion'},transfer:{label:'نقل',css:'rtype-transfer'},resignation:{label:'استقالة',css:'rtype-resignation'},promotion:{label:'ترقية',css:'rtype-promotion'},other:{label:'أخرى',css:'rtype-other'}};
+const PERM_TABS=[{key:'dashboard',label:'لوحة التحكم'},{key:'branches',label:'الفروع والموظفين'},{key:'requests',label:'الطلبات'},{key:'salaries',label:'الرواتب'},{key:'reports',label:'التقارير'},{key:'finance',label:'المالية'},{key:'orgchart',label:'الهيكل التنظيمي'}];
+const PERM_DEFAULTS={viewer:{dashboard:true,branches:true,requests:true,reports:true,finance:true,orgchart:true,salaries:false},employee:{dashboard:true,requests:true,salaries:false,branches:false,reports:false,finance:false,orgchart:false}};
+function hasPermission(tab){if(isCEO()||isManager())return true;const perms=U.permissions?.tabs||{};if(perms[tab]!==undefined)return perms[tab];return(PERM_DEFAULTS[U.role]||{})[tab]||false;}
 
 (async function(){
     const now=new Date();payrollMonth=now.getMonth()+1;payrollYear=now.getFullYear();finMonth=payrollMonth;finYear=payrollYear;
@@ -643,7 +698,7 @@ async function doLogout(){await sb.auth.signOut();U=null;$('app').style.display=
 
 async function loadUser(uid){
     const{data:p}=await sb.from('profiles').select('*, branches(name)').eq('id',uid).single();
-    U=p?{id:p.id,name:p.full_name,role:p.role,roleName:p.role==='ceo'?'المدير العام':p.role==='admin'?'مدير الإدارة':p.role==='viewer'?'مدير مراقب':'موظف',branchName:p.branches?.name||'الإدارة العليا',branch_id:p.branch_id}:{id:uid,name:'مستخدم',role:'employee',roleName:'موظف',branchName:'',branch_id:null};
+    U=p?{id:p.id,name:p.full_name,role:p.role,permissions:p.permissions||{},roleName:p.role==='ceo'?'المدير العام':p.role==='admin'?'مدير الإدارة':p.role==='viewer'?'مدير مراقب':'موظف',branchName:p.branches?.name||'الإدارة العليا',branch_id:p.branch_id}:{id:uid,name:'مستخدم',role:'employee',roleName:'موظف',branchName:'',branch_id:null,permissions:{}};
     const{data:emp}=await sb.from('employees').select('*').eq('user_id',uid).maybeSingle();
     U.employee=emp||null;
     U.employee_id=emp?.id||null;
@@ -652,15 +707,13 @@ async function loadUser(uid){
 function showApp(){
     $('loginScreen').style.display='none';$('loadingScreen').style.display='none';$('app').style.display='block';
     $('userName').textContent=U.name+' | '+U.roleName;
-    if(isManager()){
-        $('branchAdminBtns').style.display='flex';
-        $('empAdminBtns').style.display='flex';
-        $('tabSalaries').style.display='block';
-    }
-    if(isCEO()){$('tabUsers').style.display='block';}
+    // Tab visibility based on permissions
+    const tabMap={dashboard:'tabDashboard',branches:'tabBranches',requests:'tabRequests',salaries:'tabSalaries',reports:'tabReports',finance:'tabFinance',orgchart:'tabOrgchart'};
+    Object.entries(tabMap).forEach(([key,id])=>{const el=$(id);if(el)el.style.display=hasPermission(key)?'block':'none';});
+    if(isCEO()||isManager()){$('tabUsers').style.display='block';}
     if(U.employee){$('tabMyProfile').style.display='block';}
-    if(canViewAll()){$('tabFinance').style.display='block';}
-    if(isViewer()){$('tabSalaries').style.display='none';$('branchAdminBtns').style.display='none';$('empAdminBtns').style.display='none';}
+    // Admin buttons only for CEO/Admin (not viewer)
+    if(isManager()&&!isViewer()){$('branchAdminBtns').style.display='flex';$('empAdminBtns').style.display='flex';}
     reqViewMode=isManager()||isViewer()?'received':'sent';
     loadAll();
 }
@@ -1166,8 +1219,9 @@ async function loadUsers(){
     empty.style.display='none';
     body.innerHTML=data.map(u=>{
         const rb='<span class="role-badge role-'+u.role+'">'+roleAr(u.role)+'</span>';
-        const sel=isCEO()?'<select class="role-select" onchange="changeRole(\''+u.id+'\',this.value)"><option value="employee"'+(u.role==='employee'?' selected':'')+'>موظف</option><option value="viewer"'+(u.role==='viewer'?' selected':'')+'>مدير مراقب</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>مدير إدارة</option><option value="ceo"'+(u.role==='ceo'?' selected':'')+'>مدير عام</option></select>':'<span style="color:#888">-</span>';
-        return '<tr><td><strong>'+u.full_name+'</strong></td><td>'+rb+'</td><td>'+sel+'</td></tr>';
+        const sel=(isCEO()||(isManager()&&u.role!=='ceo'))?'<select class="role-select" onchange="changeRole(\''+u.id+'\',this.value)"><option value="employee"'+(u.role==='employee'?' selected':'')+'>موظف</option><option value="viewer"'+(u.role==='viewer'?' selected':'')+'>مدير مراقب</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>مدير إدارة</option><option value="ceo"'+(u.role==='ceo'?' selected':'')+'>مدير عام</option></select>':'<span style="color:#888">-</span>';
+        const permBtn=(u.role!=='ceo'&&u.role!=='admin')?'<button class="btn btn-main btn-sm" onclick="openPermissions(\''+u.id+'\',\''+esc(u.full_name)+'\',\''+u.role+'\','+JSON.stringify(JSON.stringify(u.permissions||{}))+')">صلاحيات</button>':'<span style="color:#888;font-size:.8rem">كامل</span>';
+        return '<tr><td><strong>'+u.full_name+'</strong></td><td>'+rb+'</td><td>'+sel+'</td><td>'+permBtn+'</td></tr>';
     }).join('');
 }
 async function changeRole(uid,role){
@@ -1252,8 +1306,8 @@ document.addEventListener('click',e=>{if(!e.target.closest('.notif-wrap'))$('not
 function changeFinMonth(delta){finMonth+=delta;if(finMonth>12){finMonth=1;finYear++;}if(finMonth<1){finMonth=12;finYear--;}loadFinance();}
 async function loadFinance(){
     $('finMonthLabel').textContent=monthAr(finMonth)+' '+finYear;
-    if(isManager()&&!isViewer()){$('salesAdminBtns').style.display='flex';$('reportAdminBtns').style.display='flex';$('salesActsHead').style.display='';}
-    await Promise.all([loadBranchSales(),loadFinReports()]);
+    if(isManager()&&!isViewer()){$('salesAdminBtns').style.display='flex';$('reportAdminBtns').style.display='flex';$('finReportAdminBtns').style.display='flex';$('salesActsHead').style.display='';}
+    await Promise.all([loadBranchSales(),loadFinReports(),loadMonthlyReports()]);
 }
 async function loadBranchSales(){
     const{data}=await sb.from('branch_sales').select('*, branch:branches(name)').eq('month',finMonth).eq('year',finYear).order('created_at');
@@ -1345,6 +1399,92 @@ async function deleteFinReport(id,fileUrl){
     }catch(e){toast('خطأ: '+e.message,'err');}
 }
 function finReportTypeAr(t){return{pnl:'أرباح وخسائر',expenses:'مصروفات',depreciation:'إهلاكات',sales:'مبيعات',other:'أخرى'}[t]||t;}
+
+// ====== PERMISSIONS MANAGEMENT ======
+function openPermissions(uid,name,role,permsJson){
+    $('permUserId').value=uid;$('permTitle').textContent='صلاحيات: '+name;
+    const perms=permsJson?JSON.parse(permsJson):{};
+    const tabs=perms.tabs||{};
+    const defaults=PERM_DEFAULTS[role]||PERM_DEFAULTS.employee;
+    $('permChecks').innerHTML=PERM_TABS.map(t=>{
+        const checked=tabs[t.key]!==undefined?tabs[t.key]:(defaults[t.key]||false);
+        return '<div class="perm-item"><input type="checkbox" id="perm_'+t.key+'"'+(checked?' checked':'')+' data-perm="'+t.key+'"><label for="perm_'+t.key+'">'+t.label+'</label></div>';
+    }).join('');
+    openModal('permModal');
+}
+async function savePermissions(){
+    const uid=$('permUserId').value;
+    const tabs={};
+    PERM_TABS.forEach(t=>{const cb=$('perm_'+t.key);if(cb)tabs[t.key]=cb.checked;});
+    try{const{error}=await sb.from('profiles').update({permissions:{tabs}}).eq('id',uid);
+        if(error)throw error;toast('تم حفظ الصلاحيات','ok');closeModal('permModal');loadUsers();
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+
+// ====== MONTHLY FINANCIAL REPORTS (P&L) ======
+function calcFinReport(){
+    const sales=pNum($('frSales').value),tax=pNum($('frTax').value);
+    const cogs=pNum($('frCogs').value),expenses=pNum($('frExpenses').value),opPct=pNum($('frOpPct').value);
+    const netSales=sales-tax;const grossProfit=netSales-cogs;
+    const profitBeforeOp=grossProfit-expenses;const opAmount=profitBeforeOp*opPct/100;
+    const netProfit=profitBeforeOp-opAmount;const margin=netSales>0?(grossProfit/netSales*100):0;
+    $('frNetSales').textContent=fmtNum(netSales)+' ر.س';
+    $('frGrossProfit').textContent=fmtNum(grossProfit)+' ر.س';
+    $('frProfitBeforeOp').textContent=fmtNum(profitBeforeOp)+' ر.س';
+    $('frOpAmount').textContent=fmtNum(opAmount)+' ر.س';
+    $('frNetProfit').textContent=fmtNum(netProfit)+' ر.س';
+    $('frMargin').textContent=margin.toFixed(2)+'%';
+}
+function openFinReport(){
+    $('frBranch').innerHTML='<option value="">كلي (جميع الفروع)</option>'+branches.filter(b=>!b.is_closed).map(b=>'<option value="'+b.id+'">'+b.name+'</option>').join('');
+    const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+    $('frStart').value=y+'-'+String(m+1).padStart(2,'0')+'-01';
+    const lastDay=new Date(y,m+1,0).getDate();
+    $('frEnd').value=y+'-'+String(m+1).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+    $('frSales').value='';$('frTax').value='';$('frCogs').value='';$('frExpenses').value='';$('frOpPct').value='30';$('frNotes').value='';
+    $('frNetSales').textContent='0';$('frGrossProfit').textContent='0';$('frProfitBeforeOp').textContent='0';
+    $('frOpAmount').textContent='0';$('frNetProfit').textContent='0';$('frMargin').textContent='0%';
+    openModal('finReportModal');
+}
+async function saveFinReport(){
+    const branch_id=$('frBranch').value||null;
+    const period_start=$('frStart').value,period_end=$('frEnd').value;
+    const total_sales=pNum($('frSales').value),tax=pNum($('frTax').value);
+    const cogs=pNum($('frCogs').value),expenses=pNum($('frExpenses').value);
+    const operator_percentage=pNum($('frOpPct').value);
+    const notes=$('frNotes').value.trim()||null;
+    if(!period_start||!period_end){toast('حدد فترة التقرير','err');return;}
+    if(total_sales<=0){toast('أدخل إجمالي المبيعات','err');return;}
+    try{const{error}=await sb.from('monthly_reports').insert({branch_id,period_start,period_end,total_sales,tax,cogs,expenses,operator_percentage,notes,created_by:U.id});
+        if(error)throw error;toast('تم حفظ التقرير','ok');closeModal('finReportModal');loadMonthlyReports();
+    }catch(e){toast('خطأ: '+e.message,'err');}
+}
+async function loadMonthlyReports(){
+    const{data}=await sb.from('monthly_reports').select('*, branch:branches(name), creator:profiles!created_by(full_name)').order('period_start',{ascending:false});
+    const reports=data||[];const list=$('monthlyReportsList'),empty=$('monthlyReportsEmpty');
+    if(reports.length===0){list.innerHTML='';empty.style.display='block';return;}
+    empty.style.display='none';
+    list.innerHTML=reports.map(r=>{
+        const netSales=r.total_sales-r.tax;const grossProfit=netSales-r.cogs;
+        const profitBeforeOp=grossProfit-r.expenses;const opAmount=profitBeforeOp*r.operator_percentage/100;
+        const netProfit=profitBeforeOp-opAmount;const margin=netSales>0?(grossProfit/netSales*100):0;
+        const delBtn=isManager()&&!isViewer()?'<button class="btn btn-red btn-sm" onclick="deleteMonthlyReport(\''+r.id+'\')">&#128465;</button>':'';
+        return '<div class="report-card-detail"><h4><span>'+(r.branch?.name||'كلي')+' | '+r.period_start+' إلى '+r.period_end+'</span><span>'+delBtn+'</span></h4>'+
+        '<div class="detail-row"><span class="detail-label">إجمالي المبيعات بعد المرتجع</span><span class="detail-value">'+fmtNum(r.total_sales)+'</span></div>'+
+        '<div class="detail-row"><span class="detail-label">الضريبة</span><span class="detail-value">'+fmtNum(r.tax)+'</span></div>'+
+        '<div class="calc-row" style="background:#eef2ff;padding:.4rem .75rem;border-radius:6px;margin:.2rem 0"><span>صافي المبيعات</span><span>'+fmtNum(netSales)+'</span></div>'+
+        '<div class="detail-row"><span class="detail-label">تكلفة البضاعة المباعة</span><span class="detail-value">'+fmtNum(r.cogs)+'</span></div>'+
+        '<div class="calc-row" style="background:#d1fae5;padding:.4rem .75rem;border-radius:6px;margin:.2rem 0"><span>الربح قبل المصروفات</span><span>'+fmtNum(grossProfit)+'</span></div>'+
+        '<div class="detail-row"><span class="detail-label">المصروفات</span><span class="detail-value" style="color:#f56565">'+fmtNum(r.expenses)+'</span></div>'+
+        '<div class="calc-row" style="background:#fef3c7;padding:.4rem .75rem;border-radius:6px;margin:.2rem 0"><span>الربح قبل نسبة المشغل</span><span>'+fmtNum(profitBeforeOp)+'</span></div>'+
+        '<div class="detail-row"><span class="detail-label">نسبة المشغل ('+r.operator_percentage+'%)</span><span class="detail-value">'+fmtNum(opAmount)+'</span></div>'+
+        '<div class="calc-row" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:.6rem .75rem;border-radius:6px;margin:.3rem 0;font-size:1.05rem"><span>صافي الربح</span><span>'+fmtNum(netProfit)+' ر.س</span></div>'+
+        '<div class="detail-row"><span class="detail-label">هامش الربح الإجمالي</span><span class="detail-value" style="color:#38b2ac">'+margin.toFixed(2)+'%</span></div>'+
+        (r.notes?'<div class="detail-row"><span class="detail-label">ملاحظات</span><span class="detail-value">'+r.notes+'</span></div>':'')+
+        '<div class="detail-row" style="border:none;color:#888;font-size:.8rem"><span>بواسطة: '+(r.creator?.full_name||'-')+'</span><span>'+fmtDate(r.created_at)+'</span></div></div>';
+    }).join('');
+}
+async function deleteMonthlyReport(id){if(!confirm('حذف التقرير المالي؟'))return;try{const{error}=await sb.from('monthly_reports').delete().eq('id',id);if(error)throw error;toast('تم الحذف','ok');loadMonthlyReports();}catch(e){toast('خطأ: '+e.message,'err');}}
 </script>
 </body>
 </html>
