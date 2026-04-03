@@ -685,6 +685,7 @@ body{font-family:Segoe UI,Tahoma,sans-serif;background:#f0f2f5;min-height:100vh;
 let sb=null,U=null,branches=[],selBranchId=null,selBranchIdx=-1,allReqs=[],sentReqs=[],receivedReqs=[],allEmpsFlat=[],delEmpId=null,trEmpId=null,fwdReqId=null,ch1=null,ch2=null;
 let payrollMonth,payrollYear,finMonth,finYear,salesData=[],finReports=[],chSales=null,chPnl=null;
 let monthlyReportsData=[],chComparison=null;
+let allUsersData=[];
 let reqViewMode='received';
 function isManager(){return U&&(U.role==='ceo'||U.role==='admin');}
 function isCEO(){return U&&U.role==='ceo';}
@@ -1244,13 +1245,14 @@ function toggleNotif(){$('notifDrop').classList.toggle('open');}
 // ====== USERS ======
 async function loadUsers(){
     const{data}=await sb.from('profiles').select('*').order('created_at');
+    allUsersData=data||[];
     const body=$('usersBody'),empty=$('usersEmpty');
-    if(!data||data.length===0){body.innerHTML='';empty.style.display='block';return;}
+    if(allUsersData.length===0){body.innerHTML='';empty.style.display='block';return;}
     empty.style.display='none';
-    body.innerHTML=data.map(u=>{
+    body.innerHTML=allUsersData.map(u=>{
         const rb='<span class="role-badge role-'+u.role+'">'+roleAr(u.role)+'</span>';
         const sel=(isCEO()||(isManager()&&u.role!=='ceo'))?'<select class="role-select" onchange="changeRole(\''+u.id+'\',this.value)"><option value="employee"'+(u.role==='employee'?' selected':'')+'>موظف</option><option value="viewer"'+(u.role==='viewer'?' selected':'')+'>مدير مراقب</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>مدير إدارة</option><option value="ceo"'+(u.role==='ceo'?' selected':'')+'>مدير عام</option></select>':'<span style="color:#888">-</span>';
-        const permBtn=(u.role!=='ceo'&&u.role!=='admin')?'<button class="btn btn-main btn-sm" onclick="openPermissions(\''+u.id+'\',\''+esc(u.full_name)+'\',\''+u.role+'\','+JSON.stringify(JSON.stringify(u.permissions||{}))+')">صلاحيات</button>':'<span style="color:#888;font-size:.8rem">كامل</span>';
+        const permBtn=(u.role!=='ceo'&&u.role!=='admin')?'<button class="btn btn-main btn-sm" onclick="openPermissions(\''+u.id+'\')">صلاحيات</button>':'<span style="color:#888;font-size:.8rem">كامل</span>';
         return '<tr><td><strong>'+u.full_name+'</strong></td><td>'+rb+'</td><td>'+sel+'</td><td>'+permBtn+'</td></tr>';
     }).join('');
 }
@@ -1415,12 +1417,16 @@ async function doUploadReport(){
     if(!title){toast('أدخل عنوان التقرير','err');return;}if(!file){toast('اختر ملف للرفع','err');return;}
     const ext=file.name.split('.').pop().toLowerCase();
     if(!['pdf','xlsx','xls','csv'].includes(ext)){toast('نوع الملف غير مدعوم','err');return;}
-    try{const fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
-        const{error:upErr}=await sb.storage.from('reports').upload(fileName,file);if(upErr)throw upErr;
+    try{
+        toast('جاري رفع الملف...','ok');
+        const fileName=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+        const{data:upData,error:upErr}=await sb.storage.from('reports').upload(fileName,file,{cacheControl:'3600',upsert:false});
+        if(upErr){console.error('Upload error:',upErr);throw new Error('فشل رفع الملف: '+upErr.message);}
         const{data:{publicUrl}}=sb.storage.from('reports').getPublicUrl(fileName);
+        if(!publicUrl)throw new Error('فشل الحصول على رابط الملف');
         const{error}=await sb.from('financial_reports').insert({title,report_type,branch_id,period_month:finMonth,period_year:finYear,file_url:publicUrl,file_name:file.name,file_type:ext,notes,uploaded_by:U.id});
-        if(error)throw error;toast('تم رفع التقرير','ok');closeModal('uploadModal');loadFinReports();
-    }catch(e){toast('خطأ: '+e.message,'err');}
+        if(error)throw error;toast('تم رفع التقرير بنجاح','ok');closeModal('uploadModal');loadFinReports();
+    }catch(e){console.error('Upload report error:',e);toast('خطأ: '+e.message,'err');}
 }
 async function deleteFinReport(id,fileUrl){
     if(!confirm('حذف التقرير؟'))return;
@@ -1433,11 +1439,13 @@ async function deleteFinReport(id,fileUrl){
 function finReportTypeAr(t){return{pnl:'أرباح وخسائر',expenses:'مصروفات',depreciation:'إهلاكات',sales:'مبيعات',other:'أخرى'}[t]||t;}
 
 // ====== PERMISSIONS MANAGEMENT ======
-function openPermissions(uid,name,role,permsJson){
-    $('permUserId').value=uid;$('permTitle').textContent='صلاحيات: '+name;
-    const perms=permsJson?JSON.parse(permsJson):{};
+function openPermissions(uid){
+    const u=allUsersData.find(x=>x.id===uid);
+    if(!u){toast('لم يتم العثور على المستخدم','err');return;}
+    $('permUserId').value=uid;$('permTitle').textContent='صلاحيات: '+u.full_name;
+    const perms=u.permissions||{};
     const tabs=perms.tabs||{};
-    const defaults=PERM_DEFAULTS[role]||PERM_DEFAULTS.employee;
+    const defaults=PERM_DEFAULTS[u.role]||PERM_DEFAULTS.employee;
     $('permChecks').innerHTML=PERM_TABS.map(t=>{
         const checked=tabs[t.key]!==undefined?tabs[t.key]:(defaults[t.key]||false);
         return '<div class="perm-item"><input type="checkbox" id="perm_'+t.key+'"'+(checked?' checked':'')+' data-perm="'+t.key+'"><label for="perm_'+t.key+'">'+t.label+'</label></div>';
@@ -1485,11 +1493,15 @@ async function saveFinReport(){
     const cogs=pNum($('frCogs').value),expenses=pNum($('frExpenses').value);
     const operator_percentage=pNum($('frOpPct').value);
     const notes=$('frNotes').value.trim()||null;
-    if(!period_start||!period_end){toast('حدد فترة التقرير','err');return;}
-    if(total_sales<=0){toast('أدخل إجمالي المبيعات','err');return;}
-    try{const{error}=await sb.from('monthly_reports').insert({branch_id,period_start,period_end,total_sales,tax,cogs,expenses,operator_percentage,notes,created_by:U.id});
-        if(error)throw error;toast('تم حفظ التقرير','ok');closeModal('finReportModal');loadMonthlyReports();
-    }catch(e){toast('خطأ: '+e.message,'err');}
+    if(!period_start||!period_end){toast('حدد فترة التقرير (من - إلى)','err');return;}
+    if(total_sales<=0){toast('أدخل إجمالي المبيعات (يجب أن يكون أكبر من صفر)','err');return;}
+    try{
+        console.log('Saving report:',{branch_id,period_start,period_end,total_sales,tax,cogs,expenses,operator_percentage});
+        const{data,error}=await sb.from('monthly_reports').insert({branch_id,period_start,period_end,total_sales,tax,cogs,expenses,operator_percentage,notes,created_by:U.id}).select();
+        if(error){console.error('Save error:',error);throw error;}
+        console.log('Saved:',data);
+        toast('تم حفظ التقرير بنجاح','ok');closeModal('finReportModal');loadMonthlyReports();
+    }catch(e){console.error('saveFinReport error:',e);toast('خطأ في الحفظ: '+e.message,'err');}
 }
 async function loadMonthlyReports(){
     const{data}=await sb.from('monthly_reports').select('*, branch:branches(name), creator:profiles!created_by(full_name)').order('period_start',{ascending:false});
